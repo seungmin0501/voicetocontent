@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VoiceToContent - Turn Voice Memos into Social Posts</title>
+    <meta name="description" content="Transform your voice memos into perfect social media posts in 30 seconds. For busy creators.">
+    
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="VoiceToContent - Voice to Social Posts">
+    <meta property="og:description" content="Transform voice memos into social posts in 30 seconds">
+    <meta property="og:image" content="/og-image.png">
+    <meta property="og:url" content="https://voicetocontent.vercel.app">
+    <meta property="og:type" content="website">
+    
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Cookie Consent Banner -->
+    <div id="cookieBanner" class="cookie-banner hidden">
+        <div class="cookie-content">
+            <p>🍪 We use cookies to track your free usage limit (3 conversions/day). No personal data is collected.</p>
+            <div class="cookie-actions">
+                <button id="acceptCookies" class="btn-accept">Accept</button>
+                <button id="declineCookies" class="btn-decline">Decline</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <h1>🎙️ VoiceToContent</h1>
+                <div class="header-right">
+                    <span id="usageCount" class="usage-count hidden"></span>
+                    <a href="#pricing" class="btn-upgrade">Upgrade</a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main>
+        <div class="container">
+            
+            <!-- Hero Section -->
+            <section class="hero">
+                <h2>Turn Voice Memos into Social Posts</h2>
+                <p class="subtitle">Speak your thoughts. AI transforms them into perfect posts for X, LinkedIn, and Instagram.</p>
+                
+                <!-- Input Method Selection -->
+                <div id="inputSection" class="input-section">
+                    <div class="input-methods">
+                        <button id="recordBtn" class="method-btn active">
+                            <span class="icon">🎤</span>
+                            <span>Record Audio</span>
+                        </button>
+                        <button id="uploadBtn" class="method-btn">
+                            <span class="icon">📁</span>
+                            <span>Upload File</span>
+                        </button>
+                    </div>
+
+                    <!-- Recording Interface -->
+                    <div id="recordInterface" class="interface-panel">
+                        <div class="record-controls">
+                            <button id="startRecord" class="btn-primary btn-large">
+                                <span class="icon">🎤</span>
+                                Start Recording
+                            </button>
+                            <button id="stopRecord" class="btn-danger btn-large hidden">
+                                <span class="icon">⏹️</span>
+                                Stop Recording
+                            </button>
+                        </div>
+                        <div id="recordTimer" class="timer hidden">00:00</div>
+                        <p class="hint">💡 Speak naturally about your ideas, thoughts, or experiences</p>
+                        <p class="limit-text">Free: Max 3 minutes | Premium: Max 10 minutes</p>
+                    </div>
+
+                    <!-- Upload Interface -->
+                    <div id="uploadInterface" class="interface-panel hidden">
+                        <div class="upload-zone" id="uploadZone">
+                            <input type="file" id="audioFile" accept="audio/*" hidden>
+                            <div class="upload-content">
+                                <span class="upload-icon">📁</span>
+                                <p class="upload-text">Click or drag audio file here</p>
+                                <p class="upload-formats">Supports: MP3, M4A, WAV, WEBM</p>
+                                <p class="upload-limit">Free: Max 10MB | Premium: Max 25MB</p>
+                            </div>
+                        </div>
+                        <div id="fileInfo" class="file-info hidden">
+                            <span id="fileName"></span>
+                            <button id="removeFile" class="btn-remove">✕</button>
+                        </div>
+                    </div>
+
+                    <!-- Audio Preview -->
+                    <div id="audioPreview" class="audio-preview hidden">
+                        <audio id="audioPlayer" controls></audio>
+                    </div>
+
+                    <!-- Conversion Options -->
+                    <div id="optionsSection" class="options-section hidden">
+                        <h3>Conversion Options</h3>
+                        
+                        <div class="option-group">
+                            <label>Platforms:</label>
+                            <div class="checkbox-group">
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="platform" value="twitter" checked>
+                                    <span>X/Twitter Thread</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="platform" value="linkedin">
+                                    <span>LinkedIn Post</span>
+                                </label>
+                                <label class="checkbox-label">
+                                    <input type="checkbox" name="platform" value="instagram">
+                                    <span>Instagram Caption</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="option-group">
+                            <label>Tone:</label>
+                            <div class="radio-group">
+                                <label class="radio-label">
+                                    <input type="radio" name="tone" value="professional" checked>
+                                    <span>Professional</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="tone" value="casual">
+                                    <span>Casual</span>
+                                </label>
+                                <label class="radio-label">
+                                    <input type="radio" name="tone" value="storytelling">
+                                    <span>Storytelling</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <button id="convertBtn" class="btn-primary btn-large">
+                            <span class="icon">✨</span>
+                            Generate Posts
+                        </button>
+                    </div>
+
+                    <!-- Loading State -->
+                    <div id="loadingState" class="loading-state hidden">
+                        <div class="spinner"></div>
+                        <p>Converting your voice to amazing posts...</p>
+                        <p class="loading-step" id="loadingStep">Transcribing audio...</p>
+                    </div>
+
+                    <!-- Results -->
+                    <div id="resultsSection" class="results-section hidden">
+                        <h3>✅ Your Posts Are Ready!</h3>
+                        <div id="resultsContainer"></div>
+                        <button id="newConversion" class="btn-secondary">
+                            🎤 Create Another
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Features -->
+            <section class="features">
+                <h3>Why VoiceToContent?</h3>
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <span class="feature-icon">⚡</span>
+                        <h4>30-Second Creation</h4>
+                        <p>From voice memo to polished post in half a minute</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="feature-icon">🎯</span>
+                        <h4>Platform-Optimized</h4>
+                        <p>Each post tailored for X, LinkedIn, or Instagram</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="feature-icon">🚗</span>
+                        <h4>Create On-The-Go</h4>
+                        <p>Record while driving, walking, or thinking</p>
+                    </div>
+                    <div class="feature-card">
+                        <span class="feature-icon">🎨</span>
+                        <h4>Your Voice, Polished</h4>
+                        <p>Maintains your authenticity while perfecting structure</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Pricing -->
+            <section id="pricing" class="pricing">
+                <h3>Simple Pricing</h3>
+                <div class="pricing-grid">
+                    <div class="pricing-card">
+                        <h4>Free</h4>
+                        <div class="price">$0<span>/month</span></div>
+                        <ul class="features-list">
+                            <li>✓ 3 conversions per day</li>
+                            <li>✓ Max 3 minutes recording</li>
+                            <li>✓ Max 10MB file upload</li>
+                            <li>✓ All platforms</li>
+                            <li>✓ Basic tones</li>
+                        </ul>
+                        <button class="btn-outline">Current Plan</button>
+                    </div>
+                    <div class="pricing-card featured">
+                        <div class="badge">Most Popular</div>
+                        <h4>Premium</h4>
+                        <div class="price">$9.99<span>/month</span></div>
+                        <ul class="features-list">
+                            <li>✓ Unlimited conversions</li>
+                            <li>✓ Max 10 minutes recording</li>
+                            <li>✓ Max 25MB file upload</li>
+                            <li>✓ All platforms</li>
+                            <li>✓ All tones & styles</li>
+                            <li>✓ Multi-language support</li>
+                            <li>✓ Priority support</li>
+                        </ul>
+                        <button class="btn-primary" id="upgradeBtn">Upgrade Now</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <p>Made with ❤️ by <a href="https://twitter.com/seungmin_builds" target="_blank">@seungmin_builds</a></p>
+            <p>Part of the #BuildInPublic journey | Product #2 of 10 in 2026</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

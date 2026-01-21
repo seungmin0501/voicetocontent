@@ -1,0 +1,27 @@
+{
+    "name": "voicetocontent",
+    "version": "1.0.0",
+    "description": "Turn voice memos into social media posts using AI",
+    "main": "index.html",
+    "scripts": {
+      "dev": "vercel dev",
+      "build": "vercel build",
+      "deploy": "vercel --prod"
+    },
+    "keywords": [
+      "voice",
+      "social-media",
+      "ai",
+      "content-creation"
+    ],
+    "author": "seungmin_builds",
+    "license": "MIT",
+    "dependencies": {
+      "@anthropic-ai/sdk": "^0.32.0",
+      "formidable": "^3.5.1",
+      "form-data": "^4.0.0"
+    },
+    "devDependencies": {
+      "vercel": "^37.0.0"
+    }
+  }
