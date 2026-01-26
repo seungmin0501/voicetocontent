@@ -314,19 +314,27 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
     showLoading();
     
     try {
-        // Step 1: Transcribe audio
-        updateLoadingStep('Transcribing audio...');
-        const transcript = await transcribeAudio(currentAudioBlob);
+        // Send everything in one API call
+        updateLoadingStep('Converting your voice to amazing posts...');
         
-        // Detect language
-        const detectedLanguage = detectLanguage(transcript);
+        const formData = new FormData();
+        formData.append('audio', currentAudioBlob, 'audio.webm');
+        formData.append('platforms', JSON.stringify(platforms));
+        formData.append('tone', tone);
         
-        // Step 2: Generate posts
-        updateLoadingStep('Generating social posts...');
-        const posts = await generatePosts(transcript, platforms, tone, detectedLanguage);
+        const response = await fetch('/api/convert', {
+            method: 'POST',
+            body: formData
+        });
         
-        // Step 3: Display results
-        displayResults(posts);
+        if (!response.ok) {
+            throw new Error('Conversion failed');
+        }
+        
+        const data = await response.json();
+        
+        // Display results
+        displayResults(data.posts);
         
         // Increment usage
         incrementUsage();
@@ -350,46 +358,6 @@ function hideLoading() {
 
 function updateLoadingStep(message) {
     document.getElementById('loadingStep').textContent = message;
-}
-
-async function transcribeAudio(audioBlob) {
-    const formData = new FormData();
-    formData.append('audio', audioBlob, 'audio.webm');
-    
-    const response = await fetch('/api/convert', {
-        method: 'POST',
-        body: formData
-    });
-    
-    if (!response.ok) {
-        throw new Error('Transcription failed');
-    }
-    
-    const data = await response.json();
-    return data.transcript;
-}
-
-async function generatePosts(transcript, platforms, tone, language) {
-    const response = await fetch('/api/convert', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            transcript,
-            platforms,
-            tone,
-            language,
-            action: 'generate'
-        })
-    });
-    
-    if (!response.ok) {
-        throw new Error('Post generation failed');
-    }
-    
-    const data = await response.json();
-    return data.posts;
 }
 
 // ============================================
