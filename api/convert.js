@@ -1,6 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import formidable from 'formidable';
 import fs from 'fs';
+import FormData from 'form-data';
 
 const anthropic = new Anthropic({
     apiKey: process.env.ANTHROPIC_API_KEY,
@@ -12,7 +13,7 @@ export const config = {
     },
 };
 
-// Multi-language prompts (same as before)
+// Multi-language prompts
 const SYSTEM_PROMPTS = {
     en: {
         twitter: "You are a social media expert. Convert the following transcript into an engaging Twitter/X thread. Use clear formatting with numbered tweets. Make it concise, engaging, and include relevant emojis. Maximum 280 characters per tweet.",
@@ -65,13 +66,12 @@ export default async function handler(req, res) {
     }
 
     try {
-        // Parse form data - CORRECTED VERSION
+        // Parse form data
         const form = formidable({
             maxFileSize: 25 * 1024 * 1024,
             keepExtensions: true,
         });
 
-        // Use callback version for better compatibility
         const parseResult = await new Promise((resolve, reject) => {
             form.parse(req, (err, fields, files) => {
                 if (err) {
@@ -87,7 +87,7 @@ export default async function handler(req, res) {
 
         const { fields, files } = parseResult;
 
-        // Extract audio file - handle both array and single file
+        // Extract audio file
         let audioFile;
         if (Array.isArray(files.audio)) {
             audioFile = files.audio[0];
@@ -97,13 +97,12 @@ export default async function handler(req, res) {
             throw new Error('No audio file received');
         }
 
-        // Extract fields - handle both array and single value
+        // Extract fields
         const platforms = JSON.parse(Array.isArray(fields.platforms) ? fields.platforms[0] : fields.platforms);
         const tone = Array.isArray(fields.tone) ? fields.tone[0] : fields.tone;
 
         // Step 1: Transcribe audio using OpenAI Whisper
-        const audioBuffer = fs.readFileSync(audioFile.filepath);
-        const transcript = await transcribeAudio(audioBuffer, audioFile.originalFilename || 'audio.webm');
+        const transcript = await transcribeAudio(audioFile.filepath, audioFile.originalFilename || 'audio.webm');
 
         // Detect language from transcript
         const language = detectLanguage(transcript);
@@ -128,13 +127,12 @@ export default async function handler(req, res) {
     }
 }
 
-async function transcribeAudio(audioBuffer, filename) {
+async function transcribeAudio(filepath, filename) {
     try {
-        const FormData = require('form-data');
+        // Create form data with file stream (NOT buffer!)
         const formData = new FormData();
-        
-        formData.append('file', audioBuffer, {
-            filename: filename || 'audio.webm',
+        formData.append('file', fs.createReadStream(filepath), {
+            filename: filename,
             contentType: 'audio/webm'
         });
         formData.append('model', 'whisper-1');
