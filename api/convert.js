@@ -12,7 +12,7 @@ export const config = {
     },
 };
 
-// Multi-language prompts
+// Multi-language prompts (same as before)
 const SYSTEM_PROMPTS = {
     en: {
         twitter: "You are a social media expert. Convert the following transcript into an engaging Twitter/X thread. Use clear formatting with numbered tweets. Make it concise, engaging, and include relevant emojis. Maximum 280 characters per tweet.",
@@ -65,20 +65,45 @@ export default async function handler(req, res) {
     }
 
     try {
-        // Parse form data with new formidable syntax
+        // Parse form data - CORRECTED VERSION
         const form = formidable({
-            maxFileSize: 25 * 1024 * 1024, // 25MB
+            maxFileSize: 25 * 1024 * 1024,
+            keepExtensions: true,
         });
 
-        const { fields, files } = await form.parse(req);
+        // Use callback version for better compatibility
+        const parseResult = await new Promise((resolve, reject) => {
+            form.parse(req, (err, fields, files) => {
+                if (err) {
+                    console.error('Formidable parse error:', err);
+                    reject(err);
+                    return;
+                }
+                console.log('Fields:', fields);
+                console.log('Files:', files);
+                resolve({ fields, files });
+            });
+        });
 
-        const audioFile = files.audio[0];
-        const platforms = JSON.parse(fields.platforms[0]);
-        const tone = fields.tone[0];
+        const { fields, files } = parseResult;
+
+        // Extract audio file - handle both array and single file
+        let audioFile;
+        if (Array.isArray(files.audio)) {
+            audioFile = files.audio[0];
+        } else if (files.audio) {
+            audioFile = files.audio;
+        } else {
+            throw new Error('No audio file received');
+        }
+
+        // Extract fields - handle both array and single value
+        const platforms = JSON.parse(Array.isArray(fields.platforms) ? fields.platforms[0] : fields.platforms);
+        const tone = Array.isArray(fields.tone) ? fields.tone[0] : fields.tone;
 
         // Step 1: Transcribe audio using OpenAI Whisper
         const audioBuffer = fs.readFileSync(audioFile.filepath);
-        const transcript = await transcribeAudio(audioBuffer, audioFile.originalFilename);
+        const transcript = await transcribeAudio(audioBuffer, audioFile.originalFilename || 'audio.webm');
 
         // Detect language from transcript
         const language = detectLanguage(transcript);
@@ -89,29 +114,44 @@ export default async function handler(req, res) {
         );
 
         // Clean up temp file
-        fs.unlinkSync(audioFile.filepath);
+        try {
+            fs.unlinkSync(audioFile.filepath);
+        } catch (e) {
+            console.error('Failed to delete temp file:', e);
+        }
 
         res.status(200).json({ posts });
 
     } catch (error) {
         console.error('API Error:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        res.status(500).json({ error: error.message || 'Internal server error' });
     }
 }
 
 async function transcribeAudio(audioBuffer, filename) {
     try {
-        // Use OpenAI Whisper API
+        const FormData = require('form-data');
+        const formData = new FormData();
+        
+        formData.append('file', audioBuffer, {
+            filename: filename || 'audio.webm',
+            contentType: 'audio/webm'
+        });
+        formData.append('model', 'whisper-1');
+
         const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
+                ...formData.getHeaders()
             },
-            body: createWhisperFormData(audioBuffer, filename)
+            body: formData
         });
 
         if (!response.ok) {
-            throw new Error('Whisper API error');
+            const errorText = await response.text();
+            console.error('Whisper API error:', errorText);
+            throw new Error(`Whisper API error: ${response.status}`);
         }
 
         const data = await response.json();
@@ -123,21 +163,7 @@ async function transcribeAudio(audioBuffer, filename) {
     }
 }
 
-function createWhisperFormData(audioBuffer, filename) {
-    const FormData = require('form-data');
-    const formData = new FormData();
-    
-    formData.append('file', audioBuffer, {
-        filename: filename || 'audio.webm',
-        contentType: 'audio/webm'
-    });
-    formData.append('model', 'whisper-1');
-    
-    return formData;
-}
-
 function detectLanguage(text) {
-    // Simple language detection
     const koreanRegex = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/;
     const japaneseRegex = /[ぁ-んァ-ン一-龯]/;
     const spanishRegex = /[áéíóúñüÁÉÍÓÚÑÜ¿¡]/;
