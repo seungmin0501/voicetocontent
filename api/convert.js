@@ -65,17 +65,12 @@ export default async function handler(req, res) {
     }
 
     try {
-        // Parse form data
+        // Parse form data with new formidable syntax
         const form = formidable({
             maxFileSize: 25 * 1024 * 1024, // 25MB
         });
 
-        const [fields, files] = await new Promise((resolve, reject) => {
-            form.parse(req, (err, fields, files) => {
-                if (err) reject(err);
-                else resolve([fields, files]);
-            });
-        });
+        const { fields, files } = await form.parse(req);
 
         const audioFile = files.audio[0];
         const platforms = JSON.parse(fields.platforms[0]);
