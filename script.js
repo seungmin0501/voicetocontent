@@ -393,7 +393,7 @@ function updateLoadingStep(message) {
     });
     
     document.getElementById('resultsSection').classList.remove('hidden');
-}
+
 
 function escapeHtml(text) {
     const div = document.createElement('div');
