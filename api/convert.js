@@ -1,10 +1,14 @@
 import Anthropic from '@anthropic-ai/sdk';
+import OpenAI from 'openai';
 import formidable from 'formidable';
 import fs from 'fs';
-import FormData from 'form-data';
 
 const anthropic = new Anthropic({
     apiKey: process.env.ANTHROPIC_API_KEY,
+});
+
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
 });
 
 export const config = {
@@ -79,8 +83,7 @@ export default async function handler(req, res) {
                     reject(err);
                     return;
                 }
-                console.log('Fields:', fields);
-                console.log('Files:', files);
+                console.log('Files received successfully');
                 resolve({ fields, files });
             });
         });
@@ -101,11 +104,16 @@ export default async function handler(req, res) {
         const platforms = JSON.parse(Array.isArray(fields.platforms) ? fields.platforms[0] : fields.platforms);
         const tone = Array.isArray(fields.tone) ? fields.tone[0] : fields.tone;
 
-        // Step 1: Transcribe audio using OpenAI Whisper
-        const transcript = await transcribeAudio(audioFile.filepath, audioFile.originalFilename || 'audio.webm');
+        console.log('Platforms:', platforms);
+        console.log('Tone:', tone);
+
+        // Step 1: Transcribe audio using OpenAI Whisper SDK
+        const transcript = await transcribeAudio(audioFile.filepath);
+        console.log('Transcription successful, length:', transcript.length);
 
         // Detect language from transcript
         const language = detectLanguage(transcript);
+        console.log('Detected language:', language);
 
         // Step 2: Generate posts for each platform
         const posts = await Promise.all(
@@ -127,33 +135,15 @@ export default async function handler(req, res) {
     }
 }
 
-async function transcribeAudio(filepath, filename) {
+async function transcribeAudio(filepath) {
     try {
-        // Create form data with file stream (NOT buffer!)
-        const formData = new FormData();
-        formData.append('file', fs.createReadStream(filepath), {
-            filename: filename,
-            contentType: 'audio/webm'
-        });
-        formData.append('model', 'whisper-1');
-
-        const response = await fetch('https://api.openai.com/v1/audio/transcriptions', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`,
-                ...formData.getHeaders()
-            },
-            body: formData
+        // Use OpenAI SDK - much cleaner!
+        const transcription = await openai.audio.transcriptions.create({
+            file: fs.createReadStream(filepath),
+            model: 'whisper-1',
         });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('Whisper API error:', errorText);
-            throw new Error(`Whisper API error: ${response.status}`);
-        }
-
-        const data = await response.json();
-        return data.text;
+        return transcription.text;
 
     } catch (error) {
         console.error('Transcription error:', error);
