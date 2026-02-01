@@ -101,21 +101,6 @@ document.getElementById('declineCookies').addEventListener('click', () => {
 });
 
 // ============================================
-// LANGUAGE DETECTION
-// ============================================
-function detectLanguage(text) {
-    // Simple language detection based on character patterns
-    const koreanRegex = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/;
-    const japaneseRegex = /[ぁ-んァ-ン一-龯]/;
-    const spanishRegex = /[áéíóúñ¿¡]/i;
-    
-    if (koreanRegex.test(text)) return 'ko';
-    if (japaneseRegex.test(text)) return 'ja';
-    if (spanishRegex.test(text)) return 'es';
-    return 'en';
-}
-
-// ============================================
 // INPUT METHOD SWITCHING
 // ============================================
 document.getElementById('recordBtn').addEventListener('click', () => {
@@ -290,6 +275,9 @@ function displayAudioPreview(audioBlob) {
 // ============================================
 // CONVERSION PROCESS
 // ============================================
+// ============================================
+// CONVERSION PROCESS
+// ============================================
 document.getElementById('convertBtn').addEventListener('click', async () => {
     if (!currentAudioBlob) {
         alert('Please record or upload audio first!');
@@ -328,10 +316,13 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
         });
         
         if (!response.ok) {
+            const errorData = await response.json();
+            console.error('API error:', errorData);
             throw new Error('Conversion failed');
         }
         
         const data = await response.json();
+        console.log('Received posts:', data.posts); // 디버깅용
         
         // Display results
         displayResults(data.posts);
@@ -341,7 +332,7 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
         
     } catch (error) {
         console.error('Conversion error:', error);
-        alert('Something went wrong. Please try again. If the issue persists, contact support.');
+        alert('Something went wrong. Please try again.');
         hideLoading();
     }
 });
@@ -360,13 +351,6 @@ function updateLoadingStep(message) {
     document.getElementById('loadingStep').textContent = message;
 }
 
-// ============================================
-// DISPLAY RESULTS
-// ============================================
-function displayResults(posts) {
-    document.getElementById('loadingState').classList.add('hidden');
-    
-    const resultsContainer = document.getElementById('resultsContainer');
     resultsContainer.innerHTML = '';
     
     const platformNames = {
