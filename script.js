@@ -101,6 +101,21 @@ document.getElementById('declineCookies').addEventListener('click', () => {
 });
 
 // ============================================
+// LANGUAGE DETECTION
+// ============================================
+function detectLanguage(text) {
+    // Simple language detection based on character patterns
+    const koreanRegex = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/;
+    const japaneseRegex = /[ぁ-んァ-ン一-龯]/;
+    const spanishRegex = /[áéíóúñ¿¡]/i;
+    
+    if (koreanRegex.test(text)) return 'ko';
+    if (japaneseRegex.test(text)) return 'ja';
+    if (spanishRegex.test(text)) return 'es';
+    return 'en';
+}
+
+// ============================================
 // INPUT METHOD SWITCHING
 // ============================================
 document.getElementById('recordBtn').addEventListener('click', () => {
@@ -275,20 +290,6 @@ function displayAudioPreview(audioBlob) {
 // ============================================
 // CONVERSION PROCESS
 // ============================================
-// ============================================
-// CONVERSION PROCESS
-// ============================================
-document.getElementById('convertBtn').addEventListener('click', async () => {
-    if (!currentAudioBlob) {
-        alert('Please record or upload audio first!');
-        return;
-    }
-    
-    if (!checkUsageLimit()) return;
-    
-// ============================================
-// CONVERSION PROCESS
-// ============================================
 
 // Random loading messages
 const loadingMessages = [
@@ -383,9 +384,58 @@ function hideLoading() {
 function updateLoadingStep(message) {
     document.getElementById('loadingStep').textContent = message;
 }
+
+
+// ============================================
+// DISPLAY RESULTS
+// ============================================
+function displayResults(posts) {
+    document.getElementById('loadingState').classList.add('hidden');
+    
+    const resultsContainer = document.getElementById('resultsContainer');
+    resultsContainer.innerHTML = '';
+    
+    const platformNames = {
+        twitter: 'X/Twitter Thread',
+        linkedin: 'LinkedIn Post',
+        instagram: 'Instagram Caption'
+    };
+    
+    posts.forEach(post => {
+        const resultCard = document.createElement('div');
+        resultCard.className = 'result-card';
+        
+        resultCard.innerHTML = `
+            <div class="result-header">
+                <span class="platform-badge">${platformNames[post.platform]}</span>
+                <button class="copy-btn" data-content="${escapeHtml(post.content)}">
+                    📋 Copy
+                </button>
+            </div>
+            <div class="result-content">${escapeHtml(post.content)}</div>
+        `;
+        
+        resultsContainer.appendChild(resultCard);
+    });
+    
+    // Add copy functionality
+    document.querySelectorAll('.copy-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const content = e.target.dataset.content;
+            copyToClipboard(content);
+            
+            e.target.textContent = '✓ Copied!';
+            e.target.classList.add('copied');
+            
+            setTimeout(() => {
+                e.target.textContent = '📋 Copy';
+                e.target.classList.remove('copied');
+            }, 2000);
+        });
+    });
     
     document.getElementById('resultsSection').classList.remove('hidden');
-
+}
 
 function escapeHtml(text) {
     const div = document.createElement('div');
