@@ -286,6 +286,29 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
     
     if (!checkUsageLimit()) return;
     
+// ============================================
+// CONVERSION PROCESS
+// ============================================
+
+// Random loading messages
+const loadingMessages = [
+    '🎤 Listening to your voice...',
+    '🤖 AI is thinking hard...',
+    '✨ Crafting the perfect words...',
+    '📝 Almost there...',
+    '🚀 Polishing your posts...'
+];
+
+let loadingMessageInterval;
+
+document.getElementById('convertBtn').addEventListener('click', async () => {
+    if (!currentAudioBlob) {
+        alert('Please record or upload audio first!');
+        return;
+    }
+    
+    if (!checkUsageLimit()) return;
+    
     // Get selected platforms
     const platformCheckboxes = document.querySelectorAll('input[name="platform"]:checked');
     if (platformCheckboxes.length === 0) {
@@ -301,10 +324,16 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
     // Show loading state
     showLoading();
     
+    // Start rotating loading messages
+    let messageIndex = 0;
+    updateLoadingStep(loadingMessages[0]);
+    loadingMessageInterval = setInterval(() => {
+        messageIndex = (messageIndex + 1) % loadingMessages.length;
+        updateLoadingStep(loadingMessages[messageIndex]);
+    }, 3000); // Change every 3 seconds
+    
     try {
         // Send everything in one API call
-        updateLoadingStep('Converting your voice to amazing posts...');
-        
         const formData = new FormData();
         formData.append('audio', currentAudioBlob, 'audio.webm');
         formData.append('platforms', JSON.stringify(platforms));
@@ -316,13 +345,16 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
         });
         
         if (!response.ok) {
-            const errorData = await response.json();
+            const errorData = await response.json().catch(() => ({}));
             console.error('API error:', errorData);
             throw new Error('Conversion failed');
         }
         
         const data = await response.json();
-        console.log('Received posts:', data.posts); // 디버깅용
+        console.log('Received posts:', data.posts);
+        
+        // Stop loading messages
+        clearInterval(loadingMessageInterval);
         
         // Display results
         displayResults(data.posts);
@@ -332,6 +364,7 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
         
     } catch (error) {
         console.error('Conversion error:', error);
+        clearInterval(loadingMessageInterval);
         alert('Something went wrong. Please try again.');
         hideLoading();
     }
@@ -350,47 +383,6 @@ function hideLoading() {
 function updateLoadingStep(message) {
     document.getElementById('loadingStep').textContent = message;
 }
-
-    resultsContainer.innerHTML = '';
-    
-    const platformNames = {
-        twitter: 'X/Twitter Thread',
-        linkedin: 'LinkedIn Post',
-        instagram: 'Instagram Caption'
-    };
-    
-    posts.forEach(post => {
-        const resultCard = document.createElement('div');
-        resultCard.className = 'result-card';
-        
-        resultCard.innerHTML = `
-            <div class="result-header">
-                <span class="platform-badge">${platformNames[post.platform]}</span>
-                <button class="copy-btn" data-content="${escapeHtml(post.content)}">
-                    📋 Copy
-                </button>
-            </div>
-            <div class="result-content">${escapeHtml(post.content)}</div>
-        `;
-        
-        resultsContainer.appendChild(resultCard);
-    });
-    
-    // Add copy functionality
-    document.querySelectorAll('.copy-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const content = e.target.dataset.content;
-            copyToClipboard(content);
-            
-            e.target.textContent = '✓ Copied!';
-            e.target.classList.add('copied');
-            
-            setTimeout(() => {
-                e.target.textContent = '📋 Copy';
-                e.target.classList.remove('copied');
-            }, 2000);
-        });
-    });
     
     document.getElementById('resultsSection').classList.remove('hidden');
 
