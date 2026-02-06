@@ -323,11 +323,11 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
     const tone = document.querySelector('input[name="tone"]:checked').value;
     
     // Show loading state
+    let messageIndex = 0;
+    updateLoadingStep(loadingMessages[0]);
     showLoading();
     
     // Start rotating loading messages
-    let messageIndex = 0;
-    updateLoadingStep(loadingMessages[0]);
     loadingMessageInterval = setInterval(() => {
         messageIndex = (messageIndex + 1) % loadingMessages.length;
         updateLoadingStep(loadingMessages[messageIndex]);
