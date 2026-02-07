@@ -325,8 +325,9 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
     // Show loading state
     let messageIndex = 0;
     updateLoadingStep(loadingMessages[0]);
+    window.scrollTo({ top: 0, behavior: 'smooth' });  // ← 추가!
     showLoading();
-    
+
     // Start rotating loading messages
     loadingMessageInterval = setInterval(() => {
         messageIndex = (messageIndex + 1) % loadingMessages.length;
