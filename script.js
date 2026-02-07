@@ -465,6 +465,9 @@ document.getElementById('newConversion').addEventListener('click', () => {
 });
 
 function resetUI() {
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
     // Hide results
     document.getElementById('resultsSection').classList.add('hidden');
     document.getElementById('inputSection').classList.remove('hidden');
