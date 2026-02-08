@@ -236,6 +236,63 @@
         </div>
     </footer>
 
+    <!-- Upgrade Modal (index.html의 </body> 바로 위에 추가) -->
+<div id="upgradeModal" class="modal hidden">
+    <div class="modal-overlay" id="modalOverlay"></div>
+    <div class="modal-content">
+        <button class="modal-close" id="modalClose">✕</button>
+        
+        <div class="modal-header">
+            <h2>⚡ Upgrade to Premium</h2>
+            <p>You've used all 3 free conversions today. Upgrade for unlimited access!</p>
+        </div>
+        
+        <div class="pricing-plans">
+            <div class="plan-card">
+                <div class="plan-header">
+                    <h3>Monthly</h3>
+                    <div class="plan-price">
+                        <span class="price">$9.99</span>
+                        <span class="period">/month</span>
+                    </div>
+                </div>
+                <ul class="plan-features">
+                    <li>✓ Unlimited conversions</li>
+                    <li>✓ 10-minute audio limit</li>
+                    <li>✓ 25MB file uploads</li>
+                    <li>✓ Priority support</li>
+                </ul>
+                <button class="plan-btn" data-plan="monthly">
+                    Upgrade Now
+                </button>
+            </div>
+            
+            <div class="plan-card featured">
+                <div class="plan-badge">Save 17%</div>
+                <div class="plan-header">
+                    <h3>Annual</h3>
+                    <div class="plan-price">
+                        <span class="price">$99</span>
+                        <span class="period">/year</span>
+                    </div>
+                    <p class="plan-savings">Just $8.25/month</p>
+                </div>
+                <ul class="plan-features">
+                    <li>✓ Unlimited conversions</li>
+                    <li>✓ 10-minute audio limit</li>
+                    <li>✓ 25MB file uploads</li>
+                    <li>✓ Priority support</li>
+                </ul>
+                <button class="plan-btn primary" data-plan="annual">
+                    Upgrade Now
+                </button>
+            </div>
+        </div>
+        
+        <button class="modal-cancel" id="modalCancel">Maybe Later</button>
+    </div>
+</div>
+
     <script src="script.js"></script>
 </body>
 </html>

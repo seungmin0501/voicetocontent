@@ -79,10 +79,23 @@ function checkUsageLimit() {
     
     const usage = getTodayUsage();
     if (usage >= FREE_DAILY_LIMIT) {
-        alert(`You've reached your daily limit (${FREE_DAILY_LIMIT} conversions). Upgrade to Premium for unlimited access!`);
+        showUpgradeModal();
         return false;
     }
     return true;
+}
+
+// ============================================
+// UPGRADE MODAL
+// ============================================
+function showUpgradeModal() {
+    document.getElementById('upgradeModal').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function hideUpgradeModal() {
+    document.getElementById('upgradeModal').classList.add('hidden');
+    document.body.style.overflow = '';
 }
 
 // ============================================
@@ -503,4 +516,25 @@ document.getElementById('upgradeBtn').addEventListener('click', () => {
 document.addEventListener('DOMContentLoaded', () => {
     checkCookieConsent();
     updateUsageDisplay();
+    
+    // Modal event listeners
+    const modalClose = document.getElementById('modalClose');
+    const modalCancel = document.getElementById('modalCancel');
+    const modalOverlay = document.getElementById('modalOverlay');
+    
+    if (modalClose) modalClose.addEventListener('click', hideUpgradeModal);
+    if (modalCancel) modalCancel.addEventListener('click', hideUpgradeModal);
+    if (modalOverlay) modalOverlay.addEventListener('click', hideUpgradeModal);
+    
+    // Upgrade buttons
+    document.querySelectorAll('.plan-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const plan = e.target.dataset.plan;
+            if (plan === 'monthly') {
+                window.location.href = 'https://voicetocontent.lemonsqueezy.com/checkout/monthly';
+            } else if (plan === 'annual') {
+                window.location.href = 'https://voicetocontent.lemonsqueezy.com/checkout/annual';
+            }
+        });
+    });
 });
