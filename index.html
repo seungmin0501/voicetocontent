@@ -5,21 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VoiceToContent - Turn Voice Memos into Social Posts</title>
     <meta name="description" content="Transform your voice memos into perfect social media posts in 30 seconds. For busy creators.">
-    
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="512x512" href="/favicon-512.png">
+    <link rel="apple-touch-icon" href="/favicon-512.png">
+
     <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="VoiceToContent - Voice to Social Posts">
     <meta property="og:description" content="Transform voice memos into social posts in 30 seconds">
     <meta property="og:image" content="/og-image.png">
     <meta property="og:url" content="https://voicetocontent.vercel.app">
     <meta property="og:type" content="website">
-    
+
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <!-- Cookie Consent Banner -->
     <div id="cookieBanner" class="cookie-banner hidden">
         <div class="cookie-content">
-            <p>🍪 We use cookies to track your free usage limit (3 conversions/day). No personal data is collected.</p>
+            <p id="cookieMessage">🍪 We use cookies to track your free usage limit (3 conversions/day). No personal data is collected.</p>
             <div class="cookie-actions">
                 <button id="acceptCookies" class="btn-accept">Accept</button>
                 <button id="declineCookies" class="btn-decline">Decline</button>
@@ -31,10 +35,17 @@
     <header>
         <div class="container">
             <div class="header-content">
-                <h1>🎙️ VoiceToContent</h1>
+                <h1 id="headerTitle">🎙️ VoiceToContent</h1>
                 <div class="header-right">
                     <span id="usageCount" class="usage-count hidden"></span>
-                    <a href="#pricing" class="btn-upgrade">Upgrade</a>
+                    <select id="languageSelect" class="language-select">
+                        <option value="ko">🇰🇷 한국어</option>
+                        <option value="en" selected>🇺🇸 English</option>
+                        <option value="ja">🇯🇵 日本語</option>
+                        <option value="es">🇪🇸 Español</option>
+                        <option value="zh">🇨🇳 中文</option>
+                    </select>
+                    <a href="#pricing" id="upgradeLink" class="btn-upgrade">Upgrade</a>
                 </div>
             </div>
         </div>
@@ -43,22 +54,22 @@
     <!-- Main Content -->
     <main>
         <div class="container">
-            
+
             <!-- Hero Section -->
             <section class="hero">
-                <h2>Turn Voice Memos into Social Posts</h2>
-                <p class="subtitle">Speak your thoughts. AI transforms them into perfect posts for X, LinkedIn, and Instagram.</p>
-                
+                <h2 id="heroHeading">Turn Voice Memos into Social Posts</h2>
+                <p id="heroSubtitle" class="subtitle">Speak your thoughts. AI transforms them into perfect posts for X, LinkedIn, and Instagram.</p>
+
                 <!-- Input Method Selection -->
                 <div id="inputSection" class="input-section">
                     <div class="input-methods">
                         <button id="recordBtn" class="method-btn active">
                             <span class="icon">🎤</span>
-                            <span>Record Audio</span>
+                            <span id="recordBtnText">Record Audio</span>
                         </button>
                         <button id="uploadBtn" class="method-btn">
                             <span class="icon">📁</span>
-                            <span>Upload File</span>
+                            <span id="uploadBtnText">Upload File</span>
                         </button>
                     </div>
 
@@ -67,16 +78,16 @@
                         <div class="record-controls">
                             <button id="startRecord" class="btn-primary btn-large">
                                 <span class="icon">🎤</span>
-                                Start Recording
+                                <span id="startRecordText">Start Recording</span>
                             </button>
                             <button id="stopRecord" class="btn-danger btn-large hidden">
                                 <span class="icon">⏹️</span>
-                                Stop Recording
+                                <span id="stopRecordText">Stop Recording</span>
                             </button>
                         </div>
                         <div id="recordTimer" class="timer hidden">00:00</div>
-                        <p class="hint">💡 Speak naturally about your ideas, thoughts, or experiences</p>
-                        <p class="limit-text">Free: Max 3 minutes | Premium: Max 10 minutes</p>
+                        <p id="recordHint" class="hint">💡 Speak naturally about your ideas, thoughts, or experiences</p>
+                        <p id="recordLimitText" class="limit-text">Free: Max 3 minutes | Premium: Max 10 minutes</p>
                     </div>
 
                     <!-- Upload Interface -->
@@ -85,9 +96,9 @@
                             <input type="file" id="audioFile" accept="audio/*" hidden>
                             <div class="upload-content">
                                 <span class="upload-icon">📁</span>
-                                <p class="upload-text">Click or drag audio file here</p>
-                                <p class="upload-formats">Supports: MP3, M4A, WAV, WEBM</p>
-                                <p class="upload-limit">Free: Max 10MB | Premium: Max 25MB</p>
+                                <p id="uploadDropText" class="upload-text">Click or drag audio file here</p>
+                                <p id="uploadFormats" class="upload-formats">Supports: MP3, M4A, WAV, WEBM</p>
+                                <p id="uploadLimitText" class="upload-limit">Free: Max 10MB | Premium: Max 25MB</p>
                             </div>
                         </div>
                         <div id="fileInfo" class="file-info hidden">
@@ -103,47 +114,47 @@
 
                     <!-- Conversion Options -->
                     <div id="optionsSection" class="options-section hidden">
-                        <h3>Conversion Options</h3>
-                        
+                        <h3 id="optionsTitle">Conversion Options</h3>
+
                         <div class="option-group">
-                            <label>Platforms:</label>
+                            <label id="platformsLabel">Platforms:</label>
                             <div class="checkbox-group">
                                 <label class="checkbox-label">
                                     <input type="checkbox" name="platform" value="twitter" checked>
-                                    <span>X/Twitter Thread</span>
+                                    <span id="platformTwitterLabel">X/Twitter Thread</span>
                                 </label>
                                 <label class="checkbox-label">
                                     <input type="checkbox" name="platform" value="linkedin">
-                                    <span>LinkedIn Post</span>
+                                    <span id="platformLinkedinLabel">LinkedIn Post</span>
                                 </label>
                                 <label class="checkbox-label">
                                     <input type="checkbox" name="platform" value="instagram">
-                                    <span>Instagram Caption</span>
+                                    <span id="platformInstagramLabel">Instagram Caption</span>
                                 </label>
                             </div>
                         </div>
 
                         <div class="option-group">
-                            <label>Tone:</label>
+                            <label id="toneLabel">Tone:</label>
                             <div class="radio-group">
                                 <label class="radio-label">
                                     <input type="radio" name="tone" value="professional" checked>
-                                    <span>Professional</span>
+                                    <span id="toneProfessionalLabel">Professional</span>
                                 </label>
                                 <label class="radio-label">
                                     <input type="radio" name="tone" value="casual">
-                                    <span>Casual</span>
+                                    <span id="toneCasualLabel">Casual</span>
                                 </label>
                                 <label class="radio-label">
                                     <input type="radio" name="tone" value="storytelling">
-                                    <span>Storytelling</span>
+                                    <span id="toneStorytellingLabel">Storytelling</span>
                                 </label>
                             </div>
                         </div>
 
                         <button id="convertBtn" class="btn-primary btn-large">
                             <span class="icon">✨</span>
-                            Generate Posts
+                            <span id="generateBtnText">Generate Posts</span>
                         </button>
                     </div>
                 </div>
@@ -151,13 +162,13 @@
                 <!-- Loading State -->
                 <div id="loadingState" class="loading-state hidden">
                     <div class="spinner"></div>
-                    <p>Converting your voice to amazing posts...</p>
+                    <p id="loadingTitle">Converting your voice to amazing posts...</p>
                     <p class="loading-step" id="loadingStep">Transcribing audio...</p>
                 </div>
 
                 <!-- Results -->
                 <div id="resultsSection" class="results-section hidden">
-                    <h3>✅ Your Posts Are Ready!</h3>
+                    <h3 id="resultsTitle">✅ Your Posts Are Ready!</h3>
                     <div id="resultsContainer"></div>
                     <button id="newConversion" class="btn-secondary">
                         🎤 Create Another
@@ -167,52 +178,52 @@
 
             <!-- Features -->
             <section class="features">
-                <h3>Why VoiceToContent?</h3>
+                <h3 id="featuresTitle">Why VoiceToContent?</h3>
                 <div class="feature-grid">
                     <div class="feature-card">
                         <span class="feature-icon">⚡</span>
-                        <h4>30-Second Creation</h4>
-                        <p>From voice memo to polished post in half a minute</p>
+                        <h4 id="feature1Title">30-Second Creation</h4>
+                        <p id="feature1Desc">From voice memo to polished post in half a minute</p>
                     </div>
                     <div class="feature-card">
                         <span class="feature-icon">🎯</span>
-                        <h4>Platform-Optimized</h4>
-                        <p>Each post tailored for X, LinkedIn, or Instagram</p>
+                        <h4 id="feature2Title">Platform-Optimized</h4>
+                        <p id="feature2Desc">Each post tailored for X, LinkedIn, or Instagram</p>
                     </div>
                     <div class="feature-card">
                         <span class="feature-icon">🚗</span>
-                        <h4>Create On-The-Go</h4>
-                        <p>Record while driving, walking, or thinking</p>
+                        <h4 id="feature3Title">Create On-The-Go</h4>
+                        <p id="feature3Desc">Record while driving, walking, or thinking</p>
                     </div>
                     <div class="feature-card">
                         <span class="feature-icon">🎨</span>
-                        <h4>Your Voice, Polished</h4>
-                        <p>Maintains your authenticity while perfecting structure</p>
+                        <h4 id="feature4Title">Your Voice, Polished</h4>
+                        <p id="feature4Desc">Maintains your authenticity while perfecting structure</p>
                     </div>
                 </div>
             </section>
 
             <!-- Pricing -->
             <section id="pricing" class="pricing">
-                <h3>Simple Pricing</h3>
+                <h3 id="pricingTitle">Simple Pricing</h3>
                 <div class="pricing-grid">
                     <div class="pricing-card">
-                        <h4>Free</h4>
-                        <div class="price">$0<span>/month</span></div>
-                        <ul class="features-list">
+                        <h4 id="pricingFreeTitle">Free</h4>
+                        <div id="pricingFreePrice" class="price">$0<span>/month</span></div>
+                        <ul id="pricingFreeFeatures" class="features-list">
                             <li>✓ 3 conversions per day</li>
                             <li>✓ Max 3 minutes recording</li>
                             <li>✓ Max 10MB file upload</li>
                             <li>✓ All platforms</li>
                             <li>✓ Basic tones</li>
                         </ul>
-                        <button class="btn-outline">Current Plan</button>
+                        <button id="pricingFreeBtn" class="btn-outline">Current Plan</button>
                     </div>
                     <div class="pricing-card featured">
-                        <div class="badge">Most Popular</div>
-                        <h4>Premium</h4>
-                        <div class="price">$9.99<span>/month</span></div>
-                        <ul class="features-list">
+                        <div id="pricingPremiumBadge" class="badge">Most Popular</div>
+                        <h4 id="pricingPremiumTitle">Premium</h4>
+                        <div id="pricingPremiumPrice" class="price">$9.99<span>/month</span></div>
+                        <ul id="pricingPremiumFeatures" class="features-list">
                             <li>✓ Unlimited conversions</li>
                             <li>✓ Max 10 minutes recording</li>
                             <li>✓ Max 25MB file upload</li>
@@ -221,7 +232,7 @@
                             <li>✓ Multi-language support</li>
                             <li>✓ Priority support</li>
                         </ul>
-                        <button class="btn-primary" id="upgradeBtn">Upgrade Now</button>
+                        <button class="btn-primary" id="upgradeBtn" data-key="pricingPremiumBtn">Upgrade Now</button>
                     </div>
                 </div>
             </section>
@@ -231,32 +242,32 @@
     <!-- Footer -->
     <footer>
         <div class="container">
-            <p>Made with ❤️ by <a href="https://twitter.com/seungmin_builds" target="_blank">@seungmin_builds</a></p>
-            <p>Part of the #BuildInPublic journey | Product #2 of 10 in 2026</p>
+            <p id="footerCredit">Made with ❤️ by <a href="https://twitter.com/seungmin_builds" target="_blank">@seungmin_builds</a></p>
+            <p id="footerDesc">Part of the #BuildInPublic journey | Product #2 of 10 in 2026</p>
         </div>
     </footer>
 
-    <!-- Upgrade Modal (index.html의 </body> 바로 위에 추가) -->
+    <!-- Upgrade Modal -->
 <div id="upgradeModal" class="modal hidden">
     <div class="modal-overlay" id="modalOverlay"></div>
     <div class="modal-content">
         <button class="modal-close" id="modalClose">✕</button>
-        
+
         <div class="modal-header">
-            <h2>⚡ Upgrade to Premium</h2>
-            <p>You've used all 3 free conversions today. Upgrade for unlimited access!</p>
+            <h2 id="modalTitle">⚡ Upgrade to Premium</h2>
+            <p id="modalDesc">You've used all 3 free conversions today. Upgrade for unlimited access!</p>
         </div>
-        
+
         <div class="pricing-plans">
             <div class="plan-card">
                 <div class="plan-header">
-                    <h3>Monthly</h3>
+                    <h3 id="modalMonthlyTitle">Monthly</h3>
                     <div class="plan-price">
-                        <span class="price">$9.99</span>
-                        <span class="period">/month</span>
+                        <span id="modalMonthlyPrice" class="price">$9.99</span>
+                        <span id="modalMonthlyPeriod" class="period">/month</span>
                     </div>
                 </div>
-                <ul class="plan-features">
+                <ul id="modalMonthlyFeatures" class="plan-features">
                     <li>✓ Unlimited conversions</li>
                     <li>✓ 10-minute audio limit</li>
                     <li>✓ 25MB file uploads</li>
@@ -266,18 +277,18 @@
                     Upgrade Now
                 </button>
             </div>
-            
+
             <div class="plan-card featured">
-                <div class="plan-badge">Save 17%</div>
+                <div id="modalSaveBadge" class="plan-badge">Save 17%</div>
                 <div class="plan-header">
-                    <h3>Annual</h3>
+                    <h3 id="modalAnnualTitle">Annual</h3>
                     <div class="plan-price">
-                        <span class="price">$99</span>
-                        <span class="period">/year</span>
+                        <span id="modalAnnualPrice" class="price">$99</span>
+                        <span id="modalAnnualPeriod" class="period">/year</span>
                     </div>
-                    <p class="plan-savings">Just $8.25/month</p>
+                    <p id="modalAnnualSavings" class="plan-savings">Just $8.25/month</p>
                 </div>
-                <ul class="plan-features">
+                <ul id="modalAnnualFeatures" class="plan-features">
                     <li>✓ Unlimited conversions</li>
                     <li>✓ 10-minute audio limit</li>
                     <li>✓ 25MB file uploads</li>
@@ -288,11 +299,12 @@
                 </button>
             </div>
         </div>
-        
+
         <button class="modal-cancel" id="modalCancel">Maybe Later</button>
     </div>
 </div>
 
+    <script src="translations.js"></script>
     <script src="script.js"></script>
 </body>
 </html>

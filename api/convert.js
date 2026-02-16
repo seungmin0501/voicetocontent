@@ -38,6 +38,11 @@ const SYSTEM_PROMPTS = {
         twitter: "あなたはソーシャルメディアの専門家です。次の音声内容を魅力的なTwitter/Xスレッドに変換してください。番号付きツイートで明確にフォーマットしてください。簡潔で魅力的に、関連する絵文字を含めてください。ツイートあたり最大280文字。",
         linkedin: "あなたはLinkedInコンテンツストラテジストです。次の音声内容をプロフェッショナルなLinkedIn投稿に変換してください。段落を使用し、洞察を含め、プロフェッショナルにとって価値のあるものにしてください。最後に関連するハッシュタグを追加してください。",
         instagram: "あなたはInstagramコンテンツクリエイターです。次の音声内容を魅力的なInstagramキャプションに変換してください。本物らしく、読みやすさのために改行を使用し、絵文字を含め、最後に関連するハッシュタグを追加してください。"
+    },
+    zh: {
+        twitter: "你是社交媒体专家。将以下语音内容转换为吸引人的Twitter/X帖子串。使用编号推文格式清晰呈现。保持简洁、有吸引力，并包含相关表情符号。每条推文最多280个字符。",
+        linkedin: "你是LinkedIn内容策略师。将以下语音内容转换为专业的LinkedIn帖子。使用段落，包含见解，使其对专业人士有价值。在末尾添加相关话题标签。",
+        instagram: "你是Instagram内容创作者。将以下语音内容转换为吸引人的Instagram说明。保持真实，使用换行提高可读性，包含表情符号，并在末尾添加相关话题标签。"
     }
 };
 
@@ -61,6 +66,11 @@ const TONE_MODIFIERS = {
         professional: "プロフェッショナルで洗練されたトーンを維持してください。",
         casual: "フレンドリーで会話的なカジュアルなトーンを使用してください。",
         storytelling: "感情的な関与を伴うナラティブストーリーテリング技法を使用してください。"
+    },
+    zh: {
+        professional: "保持专业而精致的语气。",
+        casual: "使用友好、对话式的休闲语气。",
+        storytelling: "使用叙事讲故事技巧，注重情感参与。"
     }
 };
 
@@ -153,11 +163,13 @@ async function transcribeAudio(filepath) {
 
 function detectLanguage(text) {
     const koreanRegex = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/;
-    const japaneseRegex = /[ぁ-んァ-ン一-龯]/;
+    const japaneseRegex = /[ぁ-んァ-ン]/;
+    const chineseRegex = /[\u4e00-\u9fff]/;
     const spanishRegex = /[áéíóúñüÁÉÍÓÚÑÜ¿¡]/;
-    
+
     if (koreanRegex.test(text)) return 'ko';
     if (japaneseRegex.test(text)) return 'ja';
+    if (chineseRegex.test(text)) return 'zh';
     if (spanishRegex.test(text)) return 'es';
     return 'en';
 }

@@ -40,16 +40,16 @@ function checkCookieConsent() {
 
 function getTodayUsage() {
     if (!checkCookieConsent()) return 0;
-    
+
     const today = new Date().toDateString();
     const lastDate = getCookie('usageDate');
-    
+
     if (lastDate !== today) {
         setCookie('usageDate', today, 1);
         setCookie('usageCount', '0', 1);
         return 0;
     }
-    
+
     return parseInt(getCookie('usageCount') || '0');
 }
 
@@ -62,9 +62,11 @@ function incrementUsage() {
 function updateUsageDisplay() {
     const usage = getTodayUsage();
     const usageElement = document.getElementById('usageCount');
-    
+
     if (checkCookieConsent() && usage > 0) {
-        usageElement.textContent = `${usage}/${FREE_DAILY_LIMIT} used today`;
+        usageElement.textContent = t('usageCount')
+            .replace('{used}', usage)
+            .replace('{limit}', FREE_DAILY_LIMIT);
         usageElement.classList.remove('hidden');
     } else {
         usageElement.classList.add('hidden');
@@ -73,10 +75,10 @@ function updateUsageDisplay() {
 
 function checkUsageLimit() {
     if (!checkCookieConsent()) {
-        alert('Please accept cookies to use the free tier. Cookies are only used to track your daily usage limit.');
+        alert(t('alertCookieRequired'));
         return false;
     }
-    
+
     const usage = getTodayUsage();
     if (usage >= FREE_DAILY_LIMIT) {
         showUpgradeModal();
@@ -110,7 +112,7 @@ document.getElementById('acceptCookies').addEventListener('click', () => {
 document.getElementById('declineCookies').addEventListener('click', () => {
     setCookie('cookieConsent', 'declined', 365);
     document.getElementById('cookieBanner').classList.add('hidden');
-    alert('Without cookies, you cannot use the free tier. Please upgrade to Premium or accept cookies.');
+    alert(t('alertCookieDeclined'));
 });
 
 // ============================================
@@ -121,7 +123,7 @@ function detectLanguage(text) {
     const koreanRegex = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/;
     const japaneseRegex = /[ぁ-んァ-ン一-龯]/;
     const spanishRegex = /[áéíóúñ¿¡]/i;
-    
+
     if (koreanRegex.test(text)) return 'ko';
     if (japaneseRegex.test(text)) return 'ja';
     if (spanishRegex.test(text)) return 'es';
@@ -152,35 +154,35 @@ document.getElementById('uploadBtn').addEventListener('click', () => {
 // ============================================
 document.getElementById('startRecord').addEventListener('click', async () => {
     if (!checkUsageLimit()) return;
-    
+
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
         mediaRecorder = new MediaRecorder(stream);
         audioChunks = [];
-        
+
         mediaRecorder.ondataavailable = (event) => {
             audioChunks.push(event.data);
         };
-        
+
         mediaRecorder.onstop = () => {
             const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
             currentAudioBlob = audioBlob;
             displayAudioPreview(audioBlob);
             stream.getTracks().forEach(track => track.stop());
         };
-        
+
         mediaRecorder.start();
         recordingStartTime = Date.now();
-        
+
         document.getElementById('startRecord').classList.add('hidden');
         document.getElementById('stopRecord').classList.remove('hidden');
         document.getElementById('recordTimer').classList.remove('hidden');
-        
+
         startTimer();
-        
+
     } catch (error) {
         console.error('Error accessing microphone:', error);
-        alert('Could not access microphone. Please check your browser permissions.');
+        alert(t('alertMicError'));
     }
 });
 
@@ -188,7 +190,7 @@ document.getElementById('stopRecord').addEventListener('click', () => {
     if (mediaRecorder && mediaRecorder.state === 'recording') {
         mediaRecorder.stop();
         stopTimer();
-        
+
         document.getElementById('startRecord').classList.remove('hidden');
         document.getElementById('stopRecord').classList.add('hidden');
         document.getElementById('recordTimer').classList.add('hidden');
@@ -197,18 +199,18 @@ document.getElementById('stopRecord').addEventListener('click', () => {
 
 function startTimer() {
     const maxSeconds = FREE_RECORDING_MAX_MINUTES * 60;
-    
+
     timerInterval = setInterval(() => {
         const elapsed = Math.floor((Date.now() - recordingStartTime) / 1000);
         const minutes = Math.floor(elapsed / 60);
         const seconds = elapsed % 60;
-        
-        document.getElementById('recordTimer').textContent = 
+
+        document.getElementById('recordTimer').textContent =
             `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-        
+
         if (elapsed >= maxSeconds) {
             document.getElementById('stopRecord').click();
-            alert(`Recording stopped at ${FREE_RECORDING_MAX_MINUTES} minutes (free tier limit). Upgrade for longer recordings!`);
+            alert(t('alertRecordingLimit').replace('{minutes}', FREE_RECORDING_MAX_MINUTES));
         }
     }, 1000);
 }
@@ -242,12 +244,12 @@ uploadZone.addEventListener('dragleave', () => {
 uploadZone.addEventListener('drop', (e) => {
     e.preventDefault();
     uploadZone.classList.remove('dragging');
-    
+
     const file = e.dataTransfer.files[0];
     if (file && file.type.startsWith('audio/')) {
         handleFileUpload(file);
     } else {
-        alert('Please upload an audio file (MP3, M4A, WAV, etc.)');
+        alert(t('alertAudioFileOnly'));
     }
 });
 
@@ -260,21 +262,23 @@ audioFileInput.addEventListener('change', (e) => {
 
 function handleFileUpload(file) {
     if (!checkUsageLimit()) return;
-    
+
     // Check file size
     const maxSize = FREE_FILE_MAX_MB * 1024 * 1024;
     if (file.size > maxSize) {
-        alert(`File too large! Free tier limit: ${FREE_FILE_MAX_MB}MB. Upgrade to Premium for ${PREMIUM_FILE_MAX_MB}MB files.`);
+        alert(t('alertFileTooLarge')
+            .replace('{maxFree}', FREE_FILE_MAX_MB)
+            .replace('{maxPremium}', PREMIUM_FILE_MAX_MB));
         return;
     }
-    
+
     currentAudioFile = file;
     currentAudioBlob = file;
-    
+
     // Display file info
     document.getElementById('fileName').textContent = file.name;
     document.getElementById('fileInfo').classList.remove('hidden');
-    
+
     // Show audio preview
     displayAudioPreview(file);
 }
@@ -295,7 +299,7 @@ function displayAudioPreview(audioBlob) {
     const audioPlayer = document.getElementById('audioPlayer');
     const audioURL = URL.createObjectURL(audioBlob);
     audioPlayer.src = audioURL;
-    
+
     document.getElementById('audioPreview').classList.remove('hidden');
     document.getElementById('optionsSection').classList.remove('hidden');
 }
@@ -304,83 +308,75 @@ function displayAudioPreview(audioBlob) {
 // CONVERSION PROCESS
 // ============================================
 
-// Random loading messages
-const loadingMessages = [
-    '🎤 Listening to your voice...',
-    '🤖 AI is thinking hard...',
-    '✨ Crafting the perfect words...',
-    '📝 Almost there...',
-    '🚀 Polishing your posts...'
-];
-
 let loadingMessageInterval;
 
 document.getElementById('convertBtn').addEventListener('click', async () => {
     if (!currentAudioBlob) {
-        alert('Please record or upload audio first!');
+        alert(t('alertNoAudio'));
         return;
     }
-    
+
     if (!checkUsageLimit()) return;
-    
+
     // Get selected platforms
     const platformCheckboxes = document.querySelectorAll('input[name="platform"]:checked');
     if (platformCheckboxes.length === 0) {
-        alert('Please select at least one platform!');
+        alert(t('alertNoPlatform'));
         return;
     }
-    
+
     const platforms = Array.from(platformCheckboxes).map(cb => cb.value);
-    
+
     // Get selected tone
     const tone = document.querySelector('input[name="tone"]:checked').value;
-    
+
     // Show loading state
+    const loadingMessages = t('loadingMessages');
     let messageIndex = 0;
     updateLoadingStep(loadingMessages[0]);
-    window.scrollTo({ top: 0, behavior: 'smooth' });  // ← 추가!
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     showLoading();
 
     // Start rotating loading messages
     loadingMessageInterval = setInterval(() => {
         messageIndex = (messageIndex + 1) % loadingMessages.length;
         updateLoadingStep(loadingMessages[messageIndex]);
-    }, 3000); // Change every 3 seconds
-    
+    }, 3000);
+
     try {
         // Send everything in one API call
         const formData = new FormData();
         formData.append('audio', currentAudioBlob, 'audio.webm');
         formData.append('platforms', JSON.stringify(platforms));
         formData.append('tone', tone);
-        
+
         const response = await fetch('/api/convert', {
             method: 'POST',
             body: formData
         });
-        
+
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
             console.error('API error:', errorData);
             throw new Error('Conversion failed');
         }
-        
+
         const data = await response.json();
         console.log('Received posts:', data.posts);
-        
+
         // Stop loading messages
         clearInterval(loadingMessageInterval);
-        
+
         // Display results
         displayResults(data.posts);
-        
+
         // Increment usage
         incrementUsage();
-        
+
     } catch (error) {
         console.error('Conversion error:', error);
         clearInterval(loadingMessageInterval);
-        alert('Something went wrong. Please try again.');
+        alert(t('alertConversionError'));
         hideLoading();
     }
 });
@@ -405,49 +401,45 @@ function updateLoadingStep(message) {
 // ============================================
 function displayResults(posts) {
     document.getElementById('loadingState').classList.add('hidden');
-    
+
     const resultsContainer = document.getElementById('resultsContainer');
     resultsContainer.innerHTML = '';
-    
-    const platformNames = {
-        twitter: 'X/Twitter Thread',
-        linkedin: 'LinkedIn Post',
-        instagram: 'Instagram Caption'
-    };
-    
+
+    const platformNames = t('platformNames');
+
     posts.forEach(post => {
         const resultCard = document.createElement('div');
         resultCard.className = 'result-card';
-        
+
         resultCard.innerHTML = `
             <div class="result-header">
                 <span class="platform-badge">${platformNames[post.platform]}</span>
                 <button class="copy-btn" data-content="${escapeHtml(post.content)}">
-                    📋 Copy
+                    ${t('copyBtn')}
                 </button>
             </div>
             <div class="result-content">${escapeHtml(post.content)}</div>
         `;
-        
+
         resultsContainer.appendChild(resultCard);
     });
-    
+
     // Add copy functionality
     document.querySelectorAll('.copy-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const content = e.target.dataset.content;
             copyToClipboard(content);
-            
-            e.target.textContent = '✓ Copied!';
+
+            e.target.textContent = t('copiedBtn');
             e.target.classList.add('copied');
-            
+
             setTimeout(() => {
-                e.target.textContent = '📋 Copy';
+                e.target.textContent = t('copyBtn');
                 e.target.classList.remove('copied');
             }, 2000);
         });
     });
-    
+
     document.getElementById('resultsSection').classList.remove('hidden');
 }
 
@@ -484,17 +476,17 @@ function resetUI() {
     // Hide results
     document.getElementById('resultsSection').classList.add('hidden');
     document.getElementById('inputSection').classList.remove('hidden');
-    
+
     // Reset audio
     currentAudioBlob = null;
     currentAudioFile = null;
     audioFileInput.value = '';
-    
+
     // Reset UI elements
     document.getElementById('audioPreview').classList.add('hidden');
     document.getElementById('optionsSection').classList.add('hidden');
     document.getElementById('fileInfo').classList.add('hidden');
-    
+
     // Reset recording
     document.getElementById('startRecord').classList.remove('hidden');
     document.getElementById('stopRecord').classList.add('hidden');
@@ -506,7 +498,7 @@ function resetUI() {
 // UPGRADE BUTTON
 // ============================================
 document.getElementById('upgradeBtn').addEventListener('click', () => {
-    alert('Premium upgrade coming soon! For now, enjoy the free tier. 🚀');
+    alert(t('alertUpgradeComingSoon'));
     // TODO: Integrate Lemon Squeezy
 });
 
@@ -514,18 +506,27 @@ document.getElementById('upgradeBtn').addEventListener('click', () => {
 // INITIALIZATION
 // ============================================
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize language
+    const detectedLang = detectBrowserLanguage();
+    setLanguage(detectedLang);
+
+    // Language selector event listener
+    document.getElementById('languageSelect').addEventListener('change', (e) => {
+        setLanguage(e.target.value);
+    });
+
     checkCookieConsent();
     updateUsageDisplay();
-    
+
     // Modal event listeners
     const modalClose = document.getElementById('modalClose');
     const modalCancel = document.getElementById('modalCancel');
     const modalOverlay = document.getElementById('modalOverlay');
-    
+
     if (modalClose) modalClose.addEventListener('click', hideUpgradeModal);
     if (modalCancel) modalCancel.addEventListener('click', hideUpgradeModal);
     if (modalOverlay) modalOverlay.addEventListener('click', hideUpgradeModal);
-    
+
     // Upgrade buttons
     document.querySelectorAll('.plan-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
