@@ -21,3 +21,12 @@ npm-debug.log*
 # Temporary files
 *.tmp
 *.temp
+
+# Claude Code
+.claude/
+
+# Playwright & Tests
+playwright.config.js
+tests/
+test-results/
+playwright-report/

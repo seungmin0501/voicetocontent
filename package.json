@@ -17,10 +17,11 @@
   "license": "MIT",
   "dependencies": {
     "@anthropic-ai/sdk": "^0.32.0",
-    "openai": "^4.77.0",
-    "formidable": "^3.5.1"
+    "formidable": "^3.5.1",
+    "openai": "^4.77.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.58.2",
     "vercel": "^37.0.0"
   }
 }
