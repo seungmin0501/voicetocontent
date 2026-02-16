@@ -531,9 +531,9 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', (e) => {
             const plan = e.target.dataset.plan;
             if (plan === 'monthly') {
-                window.location.href = 'https://voicetocontent.lemonsqueezy.com/checkout/monthly';
+                window.location.href = 'https://voicetocontent.lemonsqueezy.com/checkout/buy/1313542';
             } else if (plan === 'annual') {
-                window.location.href = 'https://voicetocontent.lemonsqueezy.com/checkout/annual';
+                window.location.href = 'https://voicetocontent.lemonsqueezy.com/checkout/buy/1313544';
             }
         });
     });
