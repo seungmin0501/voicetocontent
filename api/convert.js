@@ -273,7 +273,7 @@ async function transcribeAudio(filepath, maxRetries = 3) {
             return transcription.text;
         } catch (error) {
             if (attempt === maxRetries) {
-                throw new Error('Failed to transcribe audio');
+                throw new Error('Failed to transcribe audio', { cause: error });
             }
             // Exponential backoff: 1s, 2s, 4s
             await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, attempt - 1)));
@@ -316,6 +316,6 @@ async function generatePost(transcript, platform, tone, language) {
         };
 
     } catch (error) {
-        throw new Error(`Failed to generate ${platform} post`);
+        throw new Error(`Failed to generate ${platform} post`, { cause: error });
     }
 }
