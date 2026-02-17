@@ -141,17 +141,22 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    // CSRF protection: validate Origin or Referer header
-    const allowedOrigins = [
+    // CSRF protection: validate Origin or Referer header (exact match)
+    const allowedOrigins = new Set([
         'https://voicetocontent.vercel.app',
         'http://localhost:3000',
         'http://localhost:5000',
-    ];
+    ]);
     const origin = req.headers['origin'];
     const referer = req.headers['referer'];
-    const originHost = origin || (referer ? new URL(referer).origin : null);
+    let originHost;
+    try {
+        originHost = origin || (referer ? new URL(referer).origin : null);
+    } catch (_) {
+        // Malformed referer URL
+    }
 
-    if (!originHost || !allowedOrigins.some(allowed => originHost.startsWith(allowed))) {
+    if (!originHost || !allowedOrigins.has(originHost)) {
         return res.status(403).json({ error: 'Forbidden: invalid origin' });
     }
 
@@ -210,7 +215,12 @@ export default async function handler(req, res) {
         }
 
         // Extract and validate fields
-        const platforms = JSON.parse(Array.isArray(fields.platforms) ? fields.platforms[0] : fields.platforms);
+        let platforms;
+        try {
+            platforms = JSON.parse(Array.isArray(fields.platforms) ? fields.platforms[0] : fields.platforms);
+        } catch (_) {
+            return res.status(400).json({ error: 'Invalid platform selection.' });
+        }
         const tone = Array.isArray(fields.tone) ? fields.tone[0] : fields.tone;
 
         const validPlatforms = ['twitter', 'linkedin', 'instagram'];
@@ -259,7 +269,18 @@ export default async function handler(req, res) {
         res.status(200).json({ posts, failedPlatforms: errors.length > 0 ? errors : undefined });
 
     } catch (error) {
-        res.status(500).json({ error: error.message || 'Internal server error' });
+        // Safe error messages — never expose internal details
+        const safeErrors = [
+            'No audio file received',
+            'Invalid file type. Please upload an audio file.',
+            'Invalid platform selection.',
+            'Invalid tone selection.',
+            'Failed to transcribe audio',
+        ];
+        const message = safeErrors.includes(error.message)
+            ? error.message
+            : 'Internal server error';
+        res.status(500).json({ error: message });
     }
 }
 

@@ -17,7 +17,8 @@ function getCookie(name) {
 function setCookie(name, value, days) {
     const expires = new Date();
     expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-    document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+    const secure = location.protocol === 'https:' ? ';Secure' : '';
+    document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/;SameSite=Lax${secure}`;
 }
 
 function checkCookieConsent() {
