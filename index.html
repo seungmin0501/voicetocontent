@@ -21,6 +21,9 @@
         gtag('config', 'G-61M966S4ZW');
     </script>
 
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json">
+
     <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="512x512" href="/favicon-512.png">
     <link rel="apple-touch-icon" href="/favicon-512.png">
@@ -374,5 +377,10 @@
     <script src="js/recording.js"></script>
     <script src="js/upload.js"></script>
     <script src="js/conversion.js"></script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').catch(() => {});
+        }
+    </script>
 </body>
 </html>

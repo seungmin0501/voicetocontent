@@ -67,6 +67,13 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
         displayResults(data.posts);
         incrementUsage();
 
+        // Show warning for partially failed platforms
+        if (data.failedPlatforms && data.failedPlatforms.length > 0) {
+            const platformNames = t('platformNames');
+            const failedNames = data.failedPlatforms.map(p => platformNames[p] || p).join(', ');
+            showToast(`${failedNames} ${t('alertPartialFailure') || 'generation failed. Other posts are ready.'}`, 'warning');
+        }
+
     } catch (error) {
         clearInterval(loadingMessageInterval);
         if (error.name === 'AbortError') {
@@ -109,9 +116,14 @@ function displayResults(posts) {
         resultCard.innerHTML = `
             <div class="result-header">
                 <span class="platform-badge">${platformNames[post.platform]}</span>
-                <button class="copy-btn" data-content="${escapeHtml(post.content)}">
-                    ${t('copyBtn')}
-                </button>
+                <div class="result-actions">
+                    <button class="edit-btn" title="${t('editBtn') || 'Edit'}">
+                        ${t('editBtn') || 'Edit'}
+                    </button>
+                    <button class="copy-btn" data-content="${escapeHtml(post.content)}">
+                        ${t('copyBtn')}
+                    </button>
+                </div>
             </div>
             <div class="result-content">${escapeHtml(post.content)}</div>
         `;
@@ -119,10 +131,38 @@ function displayResults(posts) {
         resultsContainer.appendChild(resultCard);
     });
 
+    // Edit button handlers
+    document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const card = e.target.closest('.result-card');
+            const contentEl = card.querySelector('.result-content');
+            const copyBtn = card.querySelector('.copy-btn');
+            const isEditing = contentEl.contentEditable === 'true';
+
+            if (isEditing) {
+                // Save
+                contentEl.contentEditable = 'false';
+                contentEl.classList.remove('editing');
+                e.target.textContent = t('editBtn') || 'Edit';
+                // Update copy button data
+                copyBtn.dataset.content = contentEl.textContent;
+            } else {
+                // Enter edit mode
+                contentEl.contentEditable = 'true';
+                contentEl.classList.add('editing');
+                contentEl.focus();
+                e.target.textContent = t('saveBtn') || 'Save';
+            }
+        });
+    });
+
+    // Copy button handlers
     document.querySelectorAll('.copy-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
-            const content = e.target.dataset.content;
-            copyToClipboard(content);
+            const card = e.target.closest('.result-card');
+            const contentEl = card.querySelector('.result-content');
+            // Always copy current content (may have been edited)
+            copyToClipboard(contentEl.textContent);
 
             e.target.textContent = t('copiedBtn');
             e.target.classList.add('copied');

@@ -1,4 +1,14 @@
 // ============================================
+// CONFIG
+// ============================================
+const APP_CONFIG = {
+    lemonSqueezy: {
+        monthly: 'https://voicetocontent.lemonsqueezy.com/checkout/buy/1313542',
+        annual: 'https://voicetocontent.lemonsqueezy.com/checkout/buy/1313544',
+    }
+};
+
+// ============================================
 // SHARED STATE
 // ============================================
 let currentAudioBlob = null;
@@ -19,14 +29,28 @@ function displayAudioPreview(audioBlob) {
 // ============================================
 // UPGRADE MODAL
 // ============================================
+let previouslyFocusedElement = null;
+
 function showUpgradeModal() {
-    document.getElementById('upgradeModal').classList.remove('hidden');
+    previouslyFocusedElement = document.activeElement;
+    const modal = document.getElementById('upgradeModal');
+    modal.classList.remove('hidden');
     document.body.style.overflow = 'hidden';
+
+    // Focus first focusable element
+    const firstFocusable = modal.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    if (firstFocusable) firstFocusable.focus();
 }
 
 function hideUpgradeModal() {
     document.getElementById('upgradeModal').classList.add('hidden');
     document.body.style.overflow = '';
+
+    // Restore focus
+    if (previouslyFocusedElement) {
+        previouslyFocusedElement.focus();
+        previouslyFocusedElement = null;
+    }
 }
 
 // ============================================
@@ -134,13 +158,42 @@ document.addEventListener('DOMContentLoaded', () => {
     if (modalCancel) modalCancel.addEventListener('click', hideUpgradeModal);
     if (modalOverlay) modalOverlay.addEventListener('click', hideUpgradeModal);
 
+    // Escape key to close modal
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            const modal = document.getElementById('upgradeModal');
+            if (modal && !modal.classList.contains('hidden')) {
+                hideUpgradeModal();
+            }
+        }
+    });
+
+    // Focus trap inside modal
+    const modalContent = document.querySelector('.modal-content');
+    if (modalContent) {
+        modalContent.addEventListener('keydown', (e) => {
+            if (e.key !== 'Tab') return;
+            const focusable = modalContent.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+            if (focusable.length === 0) return;
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (e.shiftKey && document.activeElement === first) {
+                e.preventDefault();
+                last.focus();
+            } else if (!e.shiftKey && document.activeElement === last) {
+                e.preventDefault();
+                first.focus();
+            }
+        });
+    }
+
     document.querySelectorAll('.plan-btn').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const plan = e.target.dataset.plan;
             if (plan === 'monthly') {
-                window.location.href = 'https://voicetocontent.lemonsqueezy.com/checkout/buy/1313542';
+                window.location.href = APP_CONFIG.lemonSqueezy.monthly;
             } else if (plan === 'annual') {
-                window.location.href = 'https://voicetocontent.lemonsqueezy.com/checkout/buy/1313544';
+                window.location.href = APP_CONFIG.lemonSqueezy.annual;
             }
         });
     });

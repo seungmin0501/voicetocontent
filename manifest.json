@@ -1,0 +1,17 @@
+{
+  "name": "VoiceToContent",
+  "short_name": "VoiceToContent",
+  "description": "Turn voice memos into perfect social media posts",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#667eea",
+  "theme_color": "#667eea",
+  "icons": [
+    {
+      "src": "/favicon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

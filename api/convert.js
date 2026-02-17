@@ -141,6 +141,20 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
+    // CSRF protection: validate Origin or Referer header
+    const allowedOrigins = [
+        'https://voicetocontent.vercel.app',
+        'http://localhost:3000',
+        'http://localhost:5000',
+    ];
+    const origin = req.headers['origin'];
+    const referer = req.headers['referer'];
+    const originHost = origin || (referer ? new URL(referer).origin : null);
+
+    if (!originHost || !allowedOrigins.some(allowed => originHost.startsWith(allowed))) {
+        return res.status(403).json({ error: 'Forbidden: invalid origin' });
+    }
+
     // Rate limiting
     const clientIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim()
         || req.headers['x-real-ip']
@@ -249,18 +263,21 @@ export default async function handler(req, res) {
     }
 }
 
-async function transcribeAudio(filepath) {
-    try {
-        // Use OpenAI SDK - much cleaner!
-        const transcription = await openai.audio.transcriptions.create({
-            file: fs.createReadStream(filepath),
-            model: 'whisper-1',
-        });
-
-        return transcription.text;
-
-    } catch (error) {
-        throw new Error('Failed to transcribe audio');
+async function transcribeAudio(filepath, maxRetries = 3) {
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+            const transcription = await openai.audio.transcriptions.create({
+                file: fs.createReadStream(filepath),
+                model: 'whisper-1',
+            });
+            return transcription.text;
+        } catch (error) {
+            if (attempt === maxRetries) {
+                throw new Error('Failed to transcribe audio');
+            }
+            // Exponential backoff: 1s, 2s, 4s
+            await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, attempt - 1)));
+        }
     }
 }
 

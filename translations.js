@@ -145,6 +145,11 @@ const translations = {
         alertNoPlatform: 'Please select at least one platform!',
         alertConversionError: 'Something went wrong. Please try again.',
         alertUpgradeComingSoon: 'Premium upgrade coming soon! For now, enjoy the free tier. 🚀',
+        alertPartialFailure: 'generation failed. Other posts are ready.',
+
+        // Buttons
+        editBtn: 'Edit',
+        saveBtn: 'Save',
 
         // Usage
         usageCount: '{used}/{limit} used today'
@@ -275,6 +280,10 @@ const translations = {
         alertNoPlatform: '최소 하나의 플랫폼을 선택해 주세요!',
         alertConversionError: '문제가 발생했습니다. 다시 시도해 주세요.',
         alertUpgradeComingSoon: '프리미엄 업그레이드가 곧 출시됩니다! 지금은 무료 티어를 즐겨주세요. 🚀',
+        alertPartialFailure: '생성에 실패했습니다. 나머지 포스트는 준비되었습니다.',
+
+        editBtn: '편집',
+        saveBtn: '저장',
 
         usageCount: '오늘 {used}/{limit} 사용'
     },
@@ -404,6 +413,10 @@ const translations = {
         alertNoPlatform: '少なくとも1つのプラットフォームを選択してください！',
         alertConversionError: '問題が発生しました。もう一度お試しください。',
         alertUpgradeComingSoon: 'プレミアムアップグレードは近日公開予定！今は無料プランをお楽しみください。🚀',
+        alertPartialFailure: 'の生成に失敗しました。他の投稿は準備できています。',
+
+        editBtn: '編集',
+        saveBtn: '保存',
 
         usageCount: '本日 {used}/{limit} 使用'
     },
@@ -533,6 +546,10 @@ const translations = {
         alertNoPlatform: '¡Por favor selecciona al menos una plataforma!',
         alertConversionError: 'Algo salió mal. Por favor intenta de nuevo.',
         alertUpgradeComingSoon: '¡Mejora Premium próximamente! Por ahora, disfruta del plan gratuito. 🚀',
+        alertPartialFailure: 'generación fallida. Los demás posts están listos.',
+
+        editBtn: 'Editar',
+        saveBtn: 'Guardar',
 
         usageCount: '{used}/{limit} usados hoy'
     },
@@ -662,6 +679,10 @@ const translations = {
         alertNoPlatform: '请至少选择一个平台！',
         alertConversionError: '出了点问题。请重试。',
         alertUpgradeComingSoon: '高级版升级即将推出！现在请享受免费方案。🚀',
+        alertPartialFailure: '生成失败。其他帖子已准备好。',
+
+        editBtn: '编辑',
+        saveBtn: '保存',
 
         usageCount: '今天已用 {used}/{limit}'
     }
