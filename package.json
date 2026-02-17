@@ -5,7 +5,12 @@
   "main": "index.html",
   "scripts": {
     "dev": "vercel dev",
-    "deploy": "vercel --prod"
+    "deploy": "vercel --prod",
+    "lint": "eslint . --ext .js --ignore-path .gitignore",
+    "lint:fix": "eslint . --ext .js --ignore-path .gitignore --fix",
+    "format": "prettier --write \"**/*.{js,json,css,html}\" --ignore-path .gitignore",
+    "format:check": "prettier --check \"**/*.{js,json,css,html}\" --ignore-path .gitignore",
+    "test": "npx playwright test"
   },
   "keywords": [
     "voice",
@@ -22,6 +27,8 @@
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
+    "eslint": "^10.0.0",
+    "prettier": "^3.8.1",
     "vercel": "^37.0.0"
   }
 }

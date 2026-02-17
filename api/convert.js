@@ -2,6 +2,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import OpenAI from 'openai';
 import formidable from 'formidable';
 import fs from 'fs';
+import { checkUsage, incrementUsage } from './usage.js';
 
 const anthropic = new Anthropic({
     apiKey: process.env.ANTHROPIC_API_KEY,
@@ -150,6 +151,15 @@ export default async function handler(req, res) {
         return res.status(429).json({ error: 'Too many requests. Please try again later.' });
     }
 
+    // Server-side usage limit check
+    const usage = await checkUsage(clientIp);
+    if (!usage.allowed) {
+        return res.status(403).json({
+            error: 'Daily limit reached',
+            usage: { count: usage.count, limit: usage.limit }
+        });
+    }
+
     try {
         // Parse form data
         const form = formidable({
@@ -228,6 +238,9 @@ export default async function handler(req, res) {
         if (posts.length === 0) {
             return res.status(500).json({ error: 'Failed to generate posts for all platforms.' });
         }
+
+        // Increment server-side usage after successful conversion
+        await incrementUsage(clientIp);
 
         res.status(200).json({ posts, failedPlatforms: errors.length > 0 ? errors : undefined });
 
