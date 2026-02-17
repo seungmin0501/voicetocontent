@@ -168,25 +168,22 @@ test.describe('언어 전환 테스트', () => {
     await expect(page.locator('#feature4Title')).toHaveText('당신의 목소리, 더 세련되게');
   });
 
-  test('alert 메시지가 언어에 맞게 변경되는가', async ({ page }) => {
+  test('토스트 메시지가 언어에 맞게 변경되는가', async ({ page }) => {
     await page.selectOption('#languageSelect', 'ko');
     await page.waitForTimeout(300);
 
-    // 오디오 없이 변환 시도 시 한국어 경고
-    let dialogMessage = '';
-    page.on('dialog', async dialog => {
-      dialogMessage = dialog.message();
-      await dialog.accept();
-    });
-
-    // optionsSection을 보이게 한 뒤 convertBtn 클릭
+    // optionsSection을 보이게 한 뒤 convertBtn 클릭 (오디오 없이 변환 시도)
     await page.evaluate(() => {
       document.getElementById('optionsSection').classList.remove('hidden');
     });
     await page.click('#convertBtn');
-    await page.waitForTimeout(300);
+    await page.waitForTimeout(500);
 
-    expect(dialogMessage).toBe('먼저 오디오를 녹음하거나 업로드해 주세요!');
+    // alert() 대신 토스트 알림이 표시되는지 확인
+    const toast = page.locator('.toast');
+    await expect(toast.first()).toBeVisible();
+    const toastText = await toast.first().textContent();
+    expect(toastText).toBe('먼저 오디오를 녹음하거나 업로드해 주세요!');
   });
 
   test('5개 언어 순차 전환이 정상 작동하는가', async ({ page }) => {
