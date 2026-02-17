@@ -3,25 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VoiceToContent - Turn Voice Memos into Social Posts</title>
-    <meta name="description" content="Transform your voice memos into perfect social media posts in 30 seconds. For busy creators.">
+    <title>VoiceToContent - Turn Voice Memos into Perfect Social Posts</title>
+    <meta name="description" content="Transform your voice recordings into engaging Twitter threads, LinkedIn posts, and Instagram captions with AI. Free 3 conversions daily.">
+    <meta name="keywords" content="voice to text, social media post generator, AI content creator, voice memo, Twitter thread, LinkedIn post, Instagram caption">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="seungmin_builds">
+    <meta name="theme-color" content="#667eea">
+    <link rel="canonical" href="https://voicetocontent.vercel.app/">
 
     <!-- Favicon -->
     <link rel="icon" type="image/png" sizes="512x512" href="/favicon-512.png">
     <link rel="apple-touch-icon" href="/favicon-512.png">
 
     <!-- Open Graph Meta Tags -->
-    <meta property="og:title" content="VoiceToContent - Voice to Social Posts">
-    <meta property="og:description" content="Transform voice memos into social posts in 30 seconds">
-    <meta property="og:image" content="/og-image.png">
+    <meta property="og:title" content="VoiceToContent - Turn Voice Memos into Perfect Social Posts">
+    <meta property="og:description" content="Transform your voice recordings into engaging Twitter threads, LinkedIn posts, and Instagram captions with AI. Free 3 conversions daily.">
+    <meta property="og:image" content="https://voicetocontent.vercel.app/og-image.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+    <meta property="og:image:alt" content="VoiceToContent - Turn Voice Memos into Social Posts">
     <meta property="og:url" content="https://voicetocontent.vercel.app">
     <meta property="og:type" content="website">
+    <meta property="og:locale" content="en_US">
+    <meta property="og:site_name" content="VoiceToContent">
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@seungmin_builds">
+    <meta name="twitter:title" content="VoiceToContent - Turn Voice Memos into Perfect Social Posts">
+    <meta name="twitter:description" content="Transform your voice recordings into engaging Twitter threads, LinkedIn posts, and Instagram captions with AI. Free 3 conversions daily.">
+    <meta name="twitter:image" content="https://voicetocontent.vercel.app/og-image.png">
+    <meta name="twitter:image:alt" content="VoiceToContent - Turn Voice Memos into Social Posts">
+
+    <!-- JSON-LD Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "VoiceToContent",
+        "url": "https://voicetocontent.vercel.app",
+        "description": "Transform your voice recordings into engaging Twitter threads, LinkedIn posts, and Instagram captions with AI. Free 3 conversions daily.",
+        "applicationCategory": "Social Media Tool",
+        "operatingSystem": "Web",
+        "offers": [
+            {
+                "@type": "Offer",
+                "price": "0",
+                "priceCurrency": "USD",
+                "name": "Free"
+            },
+            {
+                "@type": "Offer",
+                "price": "9.99",
+                "priceCurrency": "USD",
+                "name": "Premium",
+                "billingIncrement": "P1M"
+            }
+        ],
+        "author": {
+            "@type": "Person",
+            "name": "seungmin_builds",
+            "url": "https://twitter.com/seungmin_builds"
+        }
+    }
+    </script>
 
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <!-- Cookie Consent Banner -->
-    <div id="cookieBanner" class="cookie-banner hidden">
+    <div id="cookieBanner" class="cookie-banner hidden" role="dialog" aria-live="polite" aria-label="Cookie consent">
         <div class="cookie-content">
             <p id="cookieMessage">🍪 We use cookies to track your free usage limit (3 conversions/day). No personal data is collected.</p>
             <div class="cookie-actions">
@@ -36,9 +87,9 @@
         <div class="container">
             <div class="header-content">
                 <h1 id="headerTitle">🎙️ VoiceToContent</h1>
-                <div class="header-right">
+                <nav class="header-right" aria-label="Main navigation">
                     <span id="usageCount" class="usage-count hidden"></span>
-                    <select id="languageSelect" class="language-select">
+                    <select id="languageSelect" class="language-select" aria-label="Select language">
                         <option value="ko">🇰🇷 한국어</option>
                         <option value="en" selected>🇺🇸 English</option>
                         <option value="ja">🇯🇵 日本語</option>
@@ -46,7 +97,7 @@
                         <option value="zh">🇨🇳 中文</option>
                     </select>
                     <a href="#pricing" id="upgradeLink" class="btn-upgrade">Upgrade</a>
-                </div>
+                </nav>
             </div>
         </div>
     </header>
@@ -160,7 +211,7 @@
                 </div>
 
                 <!-- Loading State -->
-                <div id="loadingState" class="loading-state hidden">
+                <div id="loadingState" class="loading-state hidden" role="status" aria-live="polite">
                     <div class="spinner"></div>
                     <p id="loadingTitle">Converting your voice to amazing posts...</p>
                     <p class="loading-step" id="loadingStep">Transcribing audio...</p>
@@ -178,26 +229,26 @@
 
             <!-- Features -->
             <section class="features">
-                <h3 id="featuresTitle">Why VoiceToContent?</h3>
+                <h2 id="featuresTitle">Why VoiceToContent?</h2>
                 <div class="feature-grid">
                     <div class="feature-card">
                         <span class="feature-icon">⚡</span>
-                        <h4 id="feature1Title">30-Second Creation</h4>
+                        <h3 id="feature1Title">30-Second Creation</h3>
                         <p id="feature1Desc">From voice memo to polished post in half a minute</p>
                     </div>
                     <div class="feature-card">
                         <span class="feature-icon">🎯</span>
-                        <h4 id="feature2Title">Platform-Optimized</h4>
+                        <h3 id="feature2Title">Platform-Optimized</h3>
                         <p id="feature2Desc">Each post tailored for X, LinkedIn, or Instagram</p>
                     </div>
                     <div class="feature-card">
                         <span class="feature-icon">🚗</span>
-                        <h4 id="feature3Title">Create On-The-Go</h4>
+                        <h3 id="feature3Title">Create On-The-Go</h3>
                         <p id="feature3Desc">Record while driving, walking, or thinking</p>
                     </div>
                     <div class="feature-card">
                         <span class="feature-icon">🎨</span>
-                        <h4 id="feature4Title">Your Voice, Polished</h4>
+                        <h3 id="feature4Title">Your Voice, Polished</h3>
                         <p id="feature4Desc">Maintains your authenticity while perfecting structure</p>
                     </div>
                 </div>
@@ -205,10 +256,10 @@
 
             <!-- Pricing -->
             <section id="pricing" class="pricing">
-                <h3 id="pricingTitle">Simple Pricing</h3>
+                <h2 id="pricingTitle">Simple Pricing</h2>
                 <div class="pricing-grid">
                     <div class="pricing-card">
-                        <h4 id="pricingFreeTitle">Free</h4>
+                        <h3 id="pricingFreeTitle">Free</h3>
                         <div id="pricingFreePrice" class="price">$0<span>/month</span></div>
                         <ul id="pricingFreeFeatures" class="features-list">
                             <li>✓ 3 conversions per day</li>
@@ -221,7 +272,7 @@
                     </div>
                     <div class="pricing-card featured">
                         <div id="pricingPremiumBadge" class="badge">Most Popular</div>
-                        <h4 id="pricingPremiumTitle">Premium</h4>
+                        <h3 id="pricingPremiumTitle">Premium</h3>
                         <div id="pricingPremiumPrice" class="price">$9.99<span>/month</span></div>
                         <ul id="pricingPremiumFeatures" class="features-list">
                             <li>✓ Unlimited conversions</li>
@@ -248,10 +299,10 @@
     </footer>
 
     <!-- Upgrade Modal -->
-<div id="upgradeModal" class="modal hidden">
+<div id="upgradeModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
     <div class="modal-overlay" id="modalOverlay"></div>
     <div class="modal-content">
-        <button class="modal-close" id="modalClose">✕</button>
+        <button class="modal-close" id="modalClose" aria-label="Close modal">✕</button>
 
         <div class="modal-header">
             <h2 id="modalTitle">⚡ Upgrade to Premium</h2>

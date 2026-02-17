@@ -306,7 +306,7 @@ main {
 
 .limit-text {
     font-size: 13px;
-    color: #a0aec0;
+    color: #718096;
 }
 
 /* Upload Zone */
@@ -547,7 +547,7 @@ input[type="radio"]:checked ~ .radio-label {
     margin-bottom: 40px;
 }
 
-.features h3 {
+.features h2 {
     font-size: 28px;
     text-align: center;
     margin-bottom: 30px;
@@ -571,7 +571,7 @@ input[type="radio"]:checked ~ .radio-label {
     margin-bottom: 15px;
 }
 
-.feature-card h4 {
+.feature-card h3 {
     font-size: 18px;
     margin-bottom: 10px;
     color: #2d3748;
@@ -590,7 +590,7 @@ input[type="radio"]:checked ~ .radio-label {
     box-shadow: 0 4px 6px rgba(0,0,0,0.1);
 }
 
-.pricing h3 {
+.pricing h2 {
     font-size: 28px;
     text-align: center;
     margin-bottom: 30px;
@@ -638,7 +638,7 @@ input[type="radio"]:checked ~ .radio-label {
     font-weight: 600;
 }
 
-.pricing-card h4 {
+.pricing-card h3 {
     font-size: 24px;
     margin-bottom: 15px;
     color: #2d3748;
@@ -959,16 +959,64 @@ footer a:hover {
     color: #2d3748;
 }
 
+/* Focus Styles for Accessibility */
+button:focus-visible,
+a:focus-visible,
+select:focus-visible,
+input[type="checkbox"]:focus-visible,
+input[type="radio"]:focus-visible,
+input[type="file"]:focus-visible {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+}
+
+.method-btn:focus-visible {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+    border-color: #667eea;
+}
+
+.plan-btn:focus-visible,
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+.btn-danger:focus-visible,
+.btn-outline:focus-visible,
+.btn-accept:focus-visible,
+.btn-decline:focus-visible {
+    outline: 2px solid #2d3748;
+    outline-offset: 2px;
+}
+
+.copy-btn:focus-visible {
+    outline: 2px solid #fff;
+    outline-offset: 2px;
+}
+
+.modal-close:focus-visible {
+    outline: 2px solid #667eea;
+    outline-offset: 2px;
+    background: #f7fafc;
+}
+
+/* Contrast Improvements */
+.limit-text {
+    color: #718096;
+}
+
+.upload-limit {
+    color: #718096;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .modal-content {
         padding: 30px 20px;
     }
-    
+
     .pricing-plans {
         grid-template-columns: 1fr;
     }
-    
+
     .modal-header h2 {
         font-size: 24px;
     }

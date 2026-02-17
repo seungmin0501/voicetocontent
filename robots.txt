@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://voicetocontent.vercel.app/sitemap.xml
