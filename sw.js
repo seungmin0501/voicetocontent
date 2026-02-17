@@ -10,6 +10,9 @@ const STATIC_ASSETS = [
     '/js/recording.js',
     '/js/upload.js',
     '/js/conversion.js',
+    '/favicon-16.png',
+    '/favicon-32.png',
+    '/favicon-192.png',
     '/favicon-512.png',
 ];
 

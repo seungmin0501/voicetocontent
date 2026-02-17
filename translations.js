@@ -9,6 +9,7 @@ const translations = {
         // Meta
         pageTitle: 'VoiceToContent - Turn Voice Memos into Social Posts',
         metaDescription: 'Transform your voice memos into perfect social media posts in 30 seconds. For busy creators.',
+        keywords: 'voice to text, social media post generator, AI content creator, voice memo, Twitter thread, LinkedIn post, Instagram caption',
 
         // Header
         headerTitle: '🎙️ VoiceToContent',
@@ -158,6 +159,7 @@ const translations = {
     ko: {
         pageTitle: 'VoiceToContent - 음성 메모를 소셜 포스트로',
         metaDescription: '30초 만에 음성 메모를 완벽한 소셜 미디어 포스트로 변환하세요. 바쁜 크리에이터를 위해.',
+        keywords: '음성 텍스트 변환, 소셜 미디어 글 생성기, AI 콘텐츠 생성, 음성 메모, 트위터 스레드, 링크드인 포스트, 인스타그램 캡션, 보이스투콘텐츠',
 
         headerTitle: '🎙️ VoiceToContent',
         upgrade: '업그레이드',
@@ -291,6 +293,7 @@ const translations = {
     ja: {
         pageTitle: 'VoiceToContent - 音声メモをソーシャル投稿に',
         metaDescription: '30秒で音声メモを完璧なソーシャルメディア投稿に変換。忙しいクリエイターのために。',
+        keywords: '音声テキスト変換, SNS投稿作成, AIコンテンツ作成, ボイスメモ, ツイッタースレッド, LinkedIn投稿, インスタグラムキャプション',
 
         headerTitle: '🎙️ VoiceToContent',
         upgrade: 'アップグレード',
@@ -424,6 +427,7 @@ const translations = {
     es: {
         pageTitle: 'VoiceToContent - Convierte Memos de Voz en Posts',
         metaDescription: 'Transforma tus memos de voz en publicaciones perfectas para redes sociales en 30 segundos. Para creadores ocupados.',
+        keywords: 'voz a texto, generador de publicaciones, creador de contenido IA, memo de voz, hilo de Twitter, publicación LinkedIn, caption Instagram',
 
         headerTitle: '🎙️ VoiceToContent',
         upgrade: 'Mejorar',
@@ -557,6 +561,7 @@ const translations = {
     zh: {
         pageTitle: 'VoiceToContent - 将语音备忘录转为社交帖子',
         metaDescription: '30秒内将语音备忘录转化为完美的社交媒体帖子。为忙碌的创作者打造。',
+        keywords: '语音转文字, 社交媒体帖子生成器, AI内容创作, 语音备忘录, 推特话题, 领英帖子, Instagram标题',
 
         headerTitle: '🎙️ VoiceToContent',
         upgrade: '升级',
@@ -701,6 +706,13 @@ function t(key) {
 
 // Detect browser language and map to supported languages
 function detectBrowserLanguage() {
+    // URL parameter takes highest priority (for hreflang SEO)
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlLang = urlParams.get('lang');
+    if (urlLang && translations[urlLang]) {
+        return urlLang;
+    }
+
     const savedLang = localStorage.getItem('vtc-language');
     if (savedLang && translations[savedLang]) {
         return savedLang;
@@ -734,8 +746,34 @@ function setLanguage(lang) {
 function updateUI() {
     // Page title & meta
     document.title = t('pageTitle');
+    document.documentElement.lang = currentLanguage;
     const metaDesc = document.querySelector('meta[name="description"]');
     if (metaDesc) metaDesc.setAttribute('content', t('metaDescription'));
+    const metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (metaKeywords) metaKeywords.setAttribute('content', t('keywords'));
+
+    // Open Graph
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) ogTitle.setAttribute('content', t('pageTitle'));
+    const ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogDesc) ogDesc.setAttribute('content', t('metaDescription'));
+    const ogLocaleMap = { en: 'en_US', ko: 'ko_KR', ja: 'ja_JP', es: 'es_ES', zh: 'zh_CN' };
+    const ogLocale = document.querySelector('meta[property="og:locale"]');
+    if (ogLocale) ogLocale.setAttribute('content', ogLocaleMap[currentLanguage] || 'en_US');
+
+    // Twitter Card
+    const twTitle = document.querySelector('meta[name="twitter:title"]');
+    if (twTitle) twTitle.setAttribute('content', t('pageTitle'));
+    const twDesc = document.querySelector('meta[name="twitter:description"]');
+    if (twDesc) twDesc.setAttribute('content', t('metaDescription'));
+
+    // Canonical & OG URL
+    const baseUrl = 'https://voicetocontent.vercel.app/';
+    const langUrl = currentLanguage === 'en' ? baseUrl : baseUrl + '?lang=' + currentLanguage;
+    const canonical = document.querySelector('link[rel="canonical"]');
+    if (canonical) canonical.setAttribute('href', langUrl);
+    const ogUrl = document.querySelector('meta[property="og:url"]');
+    if (ogUrl) ogUrl.setAttribute('content', langUrl);
 
     // Header
     const headerTitle = document.getElementById('headerTitle');

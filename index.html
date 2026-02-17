@@ -5,11 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>VoiceToContent - Turn Voice Memos into Perfect Social Posts</title>
     <meta name="description" content="Transform your voice recordings into engaging Twitter threads, LinkedIn posts, and Instagram captions with AI. Free 3 conversions daily.">
-    <meta name="keywords" content="voice to text, social media post generator, AI content creator, voice memo, Twitter thread, LinkedIn post, Instagram caption">
+    <meta name="keywords" content="voice to text, social media post generator, AI content creator, voice memo, Twitter thread, LinkedIn post, Instagram caption, 음성 텍스트 변환, 소셜 미디어 글 생성기, AI 콘텐츠 생성, 보이스투콘텐츠, 音声テキスト変換, SNS投稿作成, AIコンテンツ作成, voz a texto, generador de publicaciones, 语音转文字, 社交媒体帖子生成器, AI内容创作">
     <meta name="robots" content="index, follow">
     <meta name="author" content="seungmin_builds">
     <meta name="theme-color" content="#667eea">
     <link rel="canonical" href="https://voicetocontent.vercel.app/">
+    <link rel="alternate" hreflang="en" href="https://voicetocontent.vercel.app/">
+    <link rel="alternate" hreflang="ko" href="https://voicetocontent.vercel.app/?lang=ko">
+    <link rel="alternate" hreflang="ja" href="https://voicetocontent.vercel.app/?lang=ja">
+    <link rel="alternate" hreflang="es" href="https://voicetocontent.vercel.app/?lang=es">
+    <link rel="alternate" hreflang="zh" href="https://voicetocontent.vercel.app/?lang=zh">
+    <link rel="alternate" hreflang="x-default" href="https://voicetocontent.vercel.app/">
     <meta name="google-site-verification" content="PwDIeNJxdnkempNJE7PBx5Is8ZpKzpuGwWYbKL7iWTw" />
 
     <!-- Google Analytics -->
@@ -25,8 +31,11 @@
     <link rel="manifest" href="/manifest.json">
 
     <!-- Favicon -->
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="/favicon-512.png">
-    <link rel="apple-touch-icon" href="/favicon-512.png">
+    <link rel="apple-touch-icon" href="/favicon-192.png">
 
     <!-- Open Graph Meta Tags -->
     <meta property="og:title" content="VoiceToContent - Turn Voice Memos into Perfect Social Posts">
@@ -58,6 +67,7 @@
         "description": "Transform your voice recordings into engaging Twitter threads, LinkedIn posts, and Instagram captions with AI. Free 3 conversions daily.",
         "applicationCategory": "Social Media Tool",
         "operatingSystem": "Web",
+        "inLanguage": ["en", "ko", "ja", "es", "zh"],
         "offers": [
             {
                 "@type": "Offer",
@@ -78,6 +88,56 @@
             "name": "seungmin_builds",
             "url": "https://twitter.com/seungmin_builds"
         }
+    }
+    </script>
+
+    <!-- FAQ Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+            {
+                "@type": "Question",
+                "name": "What is VoiceToContent?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "VoiceToContent is an AI-powered tool that transforms your voice recordings into engaging social media posts for Twitter/X, LinkedIn, and Instagram. Simply record or upload audio, and AI creates ready-to-post content."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Is VoiceToContent free to use?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "Yes! VoiceToContent offers a free plan with 3 conversions per day, up to 3 minutes of recording, and 10MB file uploads. For unlimited conversions and extended features, the Premium plan is available at $9.99/month."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "Which social media platforms are supported?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "VoiceToContent supports Twitter/X (threads and single tweets), LinkedIn posts, and Instagram captions. You can choose your target platform and the AI will optimize the content format accordingly."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What languages does VoiceToContent support?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "VoiceToContent supports multiple languages including English, Korean, Japanese, Spanish, and Chinese. The interface and generated content can be used in all supported languages."
+                }
+            },
+            {
+                "@type": "Question",
+                "name": "What audio formats can I upload?",
+                "acceptedAnswer": {
+                    "@type": "Answer",
+                    "text": "You can record audio directly in the browser or upload audio files up to 10MB (free) or 25MB (premium). Supported formats include common audio formats like MP3, WAV, and M4A."
+                }
+            }
+        ]
     }
     </script>
 
