@@ -7,6 +7,25 @@ let recordingStartTime;
 let timerInterval;
 let currentAudioBlob = null;
 let currentAudioFile = null;
+let recordingMimeType = 'audio/webm';
+
+// Detect best supported audio format (Safari doesn't support WebM)
+function getSupportedMimeType() {
+    const types = [
+        'audio/webm',
+        'audio/webm;codecs=opus',
+        'audio/mp4',
+        'audio/mp4;codecs=mp4a.40.2',
+        'audio/ogg;codecs=opus',
+        'audio/wav',
+    ];
+    for (const type of types) {
+        if (typeof MediaRecorder !== 'undefined' && MediaRecorder.isTypeSupported(type)) {
+            return type;
+        }
+    }
+    return '';
+}
 
 const FREE_DAILY_LIMIT = 3;
 const FREE_RECORDING_MAX_MINUTES = 3;
@@ -157,7 +176,9 @@ document.getElementById('startRecord').addEventListener('click', async () => {
 
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-        mediaRecorder = new MediaRecorder(stream);
+        recordingMimeType = getSupportedMimeType();
+        const recorderOptions = recordingMimeType ? { mimeType: recordingMimeType } : {};
+        mediaRecorder = new MediaRecorder(stream, recorderOptions);
         audioChunks = [];
 
         mediaRecorder.ondataavailable = (event) => {
@@ -165,7 +186,7 @@ document.getElementById('startRecord').addEventListener('click', async () => {
         };
 
         mediaRecorder.onstop = () => {
-            const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+            const audioBlob = new Blob(audioChunks, { type: recordingMimeType || 'audio/webm' });
             currentAudioBlob = audioBlob;
             displayAudioPreview(audioBlob);
             stream.getTracks().forEach(track => track.stop());
@@ -346,7 +367,12 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
     try {
         // Send everything in one API call
         const formData = new FormData();
-        formData.append('audio', currentAudioBlob, 'audio.webm');
+        const ext = recordingMimeType.includes('mp4') ? 'mp4'
+            : recordingMimeType.includes('ogg') ? 'ogg'
+            : recordingMimeType.includes('wav') ? 'wav'
+            : 'webm';
+        const fileName = currentAudioFile ? currentAudioFile.name : `audio.${ext}`;
+        formData.append('audio', currentAudioBlob, fileName);
         formData.append('platforms', JSON.stringify(platforms));
         formData.append('tone', tone);
 

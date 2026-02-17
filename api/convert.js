@@ -17,6 +17,67 @@ export const config = {
     },
 };
 
+// ============================================
+// RATE LIMITING (in-memory, per Vercel instance)
+// ============================================
+const rateLimit = new Map();
+const RATE_LIMIT_WINDOW_MS = 60 * 1000; // 1 minute
+const RATE_LIMIT_MAX_REQUESTS = 5;       // max 5 requests per minute per IP
+
+function isRateLimited(ip) {
+    const now = Date.now();
+    const entry = rateLimit.get(ip);
+
+    if (!entry) {
+        rateLimit.set(ip, { count: 1, startTime: now });
+        return false;
+    }
+
+    if (now - entry.startTime > RATE_LIMIT_WINDOW_MS) {
+        rateLimit.set(ip, { count: 1, startTime: now });
+        return false;
+    }
+
+    entry.count++;
+    return entry.count > RATE_LIMIT_MAX_REQUESTS;
+}
+
+// Clean up stale entries every 5 minutes
+setInterval(() => {
+    const now = Date.now();
+    for (const [ip, entry] of rateLimit) {
+        if (now - entry.startTime > RATE_LIMIT_WINDOW_MS) {
+            rateLimit.delete(ip);
+        }
+    }
+}, 5 * 60 * 1000);
+
+// ============================================
+// FILE VALIDATION
+// ============================================
+const ALLOWED_AUDIO_TYPES = [
+    'audio/webm', 'audio/wav', 'audio/wave', 'audio/x-wav',
+    'audio/mpeg', 'audio/mp3', 'audio/mp4', 'audio/m4a', 'audio/x-m4a',
+    'audio/ogg', 'audio/flac', 'audio/aac',
+    'video/webm', 'video/mp4', // browsers sometimes tag audio recordings as video
+];
+
+const ALLOWED_EXTENSIONS = [
+    '.webm', '.wav', '.mp3', '.m4a', '.ogg', '.flac', '.aac', '.mp4', '.mpeg',
+];
+
+function isValidAudioFile(file) {
+    const mimeOk = ALLOWED_AUDIO_TYPES.some(type =>
+        file.mimetype && file.mimetype.toLowerCase().startsWith(type.split('/')[0]) &&
+        ALLOWED_AUDIO_TYPES.includes(file.mimetype.toLowerCase())
+    );
+
+    const ext = (file.originalFilename || '').toLowerCase().match(/\.[^.]+$/);
+    const extOk = ext ? ALLOWED_EXTENSIONS.includes(ext[0]) : false;
+
+    return mimeOk || extOk;
+}
+
 // Multi-language prompts
 const SYSTEM_PROMPTS = {
     en: {
@@ -79,6 +140,16 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
+    // Rate limiting
+    const clientIp = req.headers['x-forwarded-for']?.split(',')[0]?.trim()
+        || req.headers['x-real-ip']
+        || req.socket?.remoteAddress
+        || 'unknown';
+
+    if (isRateLimited(clientIp)) {
+        return res.status(429).json({ error: 'Too many requests. Please try again later.' });
+    }
+
     try {
         // Parse form data
         const form = formidable({
@@ -89,11 +160,9 @@ export default async function handler(req, res) {
         const parseResult = await new Promise((resolve, reject) => {
             form.parse(req, (err, fields, files) => {
                 if (err) {
-                    console.error('Formidable parse error:', err);
                     reject(err);
                     return;
                 }
-                console.log('Files received successfully');
                 resolve({ fields, files });
             });
         });
@@ -110,20 +179,31 @@ export default async function handler(req, res) {
             throw new Error('No audio file received');
         }
 
-        // Extract fields
+        // Validate audio file type
+        if (!isValidAudioFile(audioFile)) {
+            try { fs.unlinkSync(audioFile.filepath); } catch (_) {}
+            return res.status(400).json({ error: 'Invalid file type. Please upload an audio file.' });
+        }
+
+        // Extract and validate fields
         const platforms = JSON.parse(Array.isArray(fields.platforms) ? fields.platforms[0] : fields.platforms);
         const tone = Array.isArray(fields.tone) ? fields.tone[0] : fields.tone;
 
-        console.log('Platforms:', platforms);
-        console.log('Tone:', tone);
+        const validPlatforms = ['twitter', 'linkedin', 'instagram'];
+        const validTones = ['professional', 'casual', 'storytelling'];
+
+        if (!Array.isArray(platforms) || !platforms.every(p => validPlatforms.includes(p))) {
+            return res.status(400).json({ error: 'Invalid platform selection.' });
+        }
+        if (!validTones.includes(tone)) {
+            return res.status(400).json({ error: 'Invalid tone selection.' });
+        }
 
         // Step 1: Transcribe audio using OpenAI Whisper SDK
         const transcript = await transcribeAudio(audioFile.filepath);
-        console.log('Transcription successful, length:', transcript.length);
 
         // Detect language from transcript
         const language = detectLanguage(transcript);
-        console.log('Detected language:', language);
 
         // Step 2: Generate posts for each platform
         const posts = await Promise.all(
@@ -133,14 +213,11 @@ export default async function handler(req, res) {
         // Clean up temp file
         try {
             fs.unlinkSync(audioFile.filepath);
-        } catch (e) {
-            console.error('Failed to delete temp file:', e);
-        }
+        } catch (_) {}
 
         res.status(200).json({ posts });
 
     } catch (error) {
-        console.error('API Error:', error);
         res.status(500).json({ error: error.message || 'Internal server error' });
     }
 }
@@ -156,7 +233,6 @@ async function transcribeAudio(filepath) {
         return transcription.text;
 
     } catch (error) {
-        console.error('Transcription error:', error);
         throw new Error('Failed to transcribe audio');
     }
 }
@@ -196,7 +272,6 @@ async function generatePost(transcript, platform, tone, language) {
         };
 
     } catch (error) {
-        console.error(`Error generating ${platform} post:`, error);
         throw new Error(`Failed to generate ${platform} post`);
     }
 }
