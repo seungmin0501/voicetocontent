@@ -34,6 +34,22 @@ const PREMIUM_RECORDING_MAX_MINUTES = 10;
 const PREMIUM_FILE_MAX_MB = 25;
 
 // ============================================
+// TOAST NOTIFICATIONS
+// ============================================
+function showToast(message, type = 'info', duration = 4000) {
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.textContent = message;
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        toast.classList.add('toast-hide');
+        toast.addEventListener('animationend', () => toast.remove());
+    }, duration);
+}
+
+// ============================================
 // COOKIE & USAGE MANAGEMENT
 // ============================================
 function getCookie(name) {
@@ -94,7 +110,7 @@ function updateUsageDisplay() {
 
 function checkUsageLimit() {
     if (!checkCookieConsent()) {
-        alert(t('alertCookieRequired'));
+        showToast(t('alertCookieRequired'), 'warning');
         return false;
     }
 
@@ -131,7 +147,7 @@ document.getElementById('acceptCookies').addEventListener('click', () => {
 document.getElementById('declineCookies').addEventListener('click', () => {
     setCookie('cookieConsent', 'declined', 365);
     document.getElementById('cookieBanner').classList.add('hidden');
-    alert(t('alertCookieDeclined'));
+    showToast(t('alertCookieDeclined'), 'info');
 });
 
 // ============================================
@@ -203,7 +219,7 @@ document.getElementById('startRecord').addEventListener('click', async () => {
 
     } catch (error) {
         console.error('Error accessing microphone:', error);
-        alert(t('alertMicError'));
+        showToast(t('alertMicError'), 'error');
     }
 });
 
@@ -231,7 +247,7 @@ function startTimer() {
 
         if (elapsed >= maxSeconds) {
             document.getElementById('stopRecord').click();
-            alert(t('alertRecordingLimit').replace('{minutes}', FREE_RECORDING_MAX_MINUTES));
+            showToast(t('alertRecordingLimit').replace('{minutes}', FREE_RECORDING_MAX_MINUTES), 'warning');
         }
     }, 1000);
 }
@@ -270,7 +286,7 @@ uploadZone.addEventListener('drop', (e) => {
     if (file && file.type.startsWith('audio/')) {
         handleFileUpload(file);
     } else {
-        alert(t('alertAudioFileOnly'));
+        showToast(t('alertAudioFileOnly'), 'error');
     }
 });
 
@@ -287,9 +303,9 @@ function handleFileUpload(file) {
     // Check file size
     const maxSize = FREE_FILE_MAX_MB * 1024 * 1024;
     if (file.size > maxSize) {
-        alert(t('alertFileTooLarge')
+        showToast(t('alertFileTooLarge')
             .replace('{maxFree}', FREE_FILE_MAX_MB)
-            .replace('{maxPremium}', PREMIUM_FILE_MAX_MB));
+            .replace('{maxPremium}', PREMIUM_FILE_MAX_MB), 'error');
         return;
     }
 
@@ -333,7 +349,7 @@ let loadingMessageInterval;
 
 document.getElementById('convertBtn').addEventListener('click', async () => {
     if (!currentAudioBlob) {
-        alert(t('alertNoAudio'));
+        showToast(t('alertNoAudio'), 'warning');
         return;
     }
 
@@ -342,7 +358,7 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
     // Get selected platforms
     const platformCheckboxes = document.querySelectorAll('input[name="platform"]:checked');
     if (platformCheckboxes.length === 0) {
-        alert(t('alertNoPlatform'));
+        showToast(t('alertNoPlatform'), 'warning');
         return;
     }
 
@@ -376,19 +392,25 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
         formData.append('platforms', JSON.stringify(platforms));
         formData.append('tone', tone);
 
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 120000);
+
         const response = await fetch('/api/convert', {
             method: 'POST',
-            body: formData
+            body: formData,
+            signal: controller.signal
         });
+        clearTimeout(timeoutId);
 
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
-            console.error('API error:', errorData);
+            if (response.status === 429) {
+                throw new Error('rate_limit');
+            }
             throw new Error('Conversion failed');
         }
 
         const data = await response.json();
-        console.log('Received posts:', data.posts);
 
         // Stop loading messages
         clearInterval(loadingMessageInterval);
@@ -400,9 +422,14 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
         incrementUsage();
 
     } catch (error) {
-        console.error('Conversion error:', error);
         clearInterval(loadingMessageInterval);
-        alert(t('alertConversionError'));
+        if (error.name === 'AbortError') {
+            showToast(t('alertTimeout') || 'Request timed out. Please try with a shorter audio.', 'error');
+        } else if (error.message === 'rate_limit') {
+            showToast(t('alertRateLimit') || 'Too many requests. Please wait a moment.', 'warning');
+        } else {
+            showToast(t('alertConversionError'), 'error');
+        }
         hideLoading();
     }
 });
@@ -524,7 +551,7 @@ function resetUI() {
 // UPGRADE BUTTON
 // ============================================
 document.getElementById('upgradeBtn').addEventListener('click', () => {
-    alert(t('alertUpgradeComingSoon'));
+    showToast(t('alertUpgradeComingSoon'), 'info');
     // TODO: Integrate Lemon Squeezy
 });
 

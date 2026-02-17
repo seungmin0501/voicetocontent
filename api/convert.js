@@ -205,17 +205,31 @@ export default async function handler(req, res) {
         // Detect language from transcript
         const language = detectLanguage(transcript);
 
-        // Step 2: Generate posts for each platform
-        const posts = await Promise.all(
+        // Step 2: Generate posts for each platform (partial success supported)
+        const results = await Promise.allSettled(
             platforms.map(platform => generatePost(transcript, platform, tone, language))
         );
+
+        const posts = [];
+        const errors = [];
+        results.forEach((result, i) => {
+            if (result.status === 'fulfilled') {
+                posts.push(result.value);
+            } else {
+                errors.push(platforms[i]);
+            }
+        });
 
         // Clean up temp file
         try {
             fs.unlinkSync(audioFile.filepath);
         } catch (_) {}
 
-        res.status(200).json({ posts });
+        if (posts.length === 0) {
+            return res.status(500).json({ error: 'Failed to generate posts for all platforms.' });
+        }
+
+        res.status(200).json({ posts, failedPlatforms: errors.length > 0 ? errors : undefined });
 
     } catch (error) {
         res.status(500).json({ error: error.message || 'Internal server error' });
