@@ -30,7 +30,7 @@ function checkCookieConsent() {
 }
 
 function getTodayUsage() {
-    if (!checkCookieConsent()) return 0;
+    if (getCookie('cookieConsent') !== 'accepted') return 0;
 
     const today = new Date().toDateString();
     const lastDate = getCookie('usageDate');
@@ -44,17 +44,26 @@ function getTodayUsage() {
     return parseInt(getCookie('usageCount') || '0');
 }
 
-function incrementUsage() {
-    const current = getTodayUsage();
-    setCookie('usageCount', (current + 1).toString(), 1);
-    updateUsageDisplay();
-}
-
-function updateUsageDisplay() {
-    const usage = getTodayUsage();
+async function updateUsageDisplay() {
+    const user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
     const usageElement = document.getElementById('usageCount');
+    if (!usageElement) return;
 
-    if (checkCookieConsent() && usage > 0) {
+    if (user) {
+        const usage = (typeof getSupabaseUsage === 'function') ? (await getSupabaseUsage() || 0) : 0;
+        if (usage > 0) {
+            usageElement.textContent = t('usageCount')
+                .replace('{used}', usage)
+                .replace('{limit}', FREE_DAILY_LIMIT);
+            usageElement.classList.remove('hidden');
+        } else {
+            usageElement.classList.add('hidden');
+        }
+        return;
+    }
+
+    const usage = getTodayUsage();
+    if (getCookie('cookieConsent') === 'accepted' && usage > 0) {
         usageElement.textContent = t('usageCount')
             .replace('{used}', usage)
             .replace('{limit}', FREE_DAILY_LIMIT);
@@ -64,7 +73,18 @@ function updateUsageDisplay() {
     }
 }
 
-function checkUsageLimit() {
+async function checkUsageLimit() {
+    const user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+
+    if (user) {
+        const usage = (typeof getSupabaseUsage === 'function') ? (await getSupabaseUsage() || 0) : 0;
+        if (usage >= FREE_DAILY_LIMIT) {
+            showUpgradeModal();
+            return false;
+        }
+        return true;
+    }
+
     if (!checkCookieConsent()) {
         showToast(t('alertCookieRequired'), 'warning');
         return false;
@@ -76,4 +96,18 @@ function checkUsageLimit() {
         return false;
     }
     return true;
+}
+
+async function incrementUsage() {
+    const user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+
+    if (user && typeof incrementSupabaseUsage === 'function') {
+        await incrementSupabaseUsage();
+        updateUsageDisplay();
+        return;
+    }
+
+    const current = getTodayUsage();
+    setCookie('usageCount', (current + 1).toString(), 1);
+    updateUsageDisplay();
 }

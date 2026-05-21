@@ -9,7 +9,7 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
         return;
     }
 
-    if (!checkUsageLimit()) return;
+    if (!await checkUsageLimit()) return;
 
     const platformCheckboxes = document.querySelectorAll('input[name="platform"]:checked');
     if (platformCheckboxes.length === 0) {
@@ -65,7 +65,7 @@ document.getElementById('convertBtn').addEventListener('click', async () => {
 
         clearInterval(loadingMessageInterval);
         displayResults(data.posts);
-        incrementUsage();
+        await incrementUsage();
 
         // Show warning for partially failed platforms
         if (data.failedPlatforms && data.failedPlatforms.length > 0) {
